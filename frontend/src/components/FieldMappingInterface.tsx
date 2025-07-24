@@ -517,9 +517,9 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
         ) : (
           <Box>
             {/* Field Mapping Interface */}
-            <Grid container spacing={3}>
+            <Box display="flex" gap={3} sx={{ flexDirection: { xs: 'column', md: 'row' } }}>
               {/* Source Fields Column */}
-              <Grid item xs={12} md={4}>
+              <Box flex={1}>
                 <Box>
                   <Typography variant="subtitle1" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>
                     Source Fields ({sourceFormat})
@@ -640,10 +640,10 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
                     })}
                   </Box>
                 </Box>
-              </Grid>
+              </Box>
 
               {/* Mapping Rules Column */}
-              <Grid item xs={12} md={4}>
+              <Box flex={1}>
                 <Box>
                   <Typography variant="subtitle1" gutterBottom color="secondary" sx={{ fontWeight: 'bold' }}>
                     Field Mappings
@@ -762,10 +762,10 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
                     </Box>
                   )}
                 </Box>
-              </Grid>
+              </Box>
 
               {/* Target Fields Column */}
-              <Grid item xs={12} md={4}>
+              <Box flex={1}>
                 <Box>
                   <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                     <Typography variant="subtitle1" color="success.main" sx={{ fontWeight: 'bold' }}>
@@ -902,391 +902,11 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
                     })}
                   </Box>
                 </Box>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </Box>
         )}
       </Paper>
-          
-          {sourceFields.length === 0 ? (
-            <Alert severity="info" sx={{ mb: 2 }}>
-              {sourceData ? 'No fields detected. Try uploading a different file.' : 'Upload source data to detect fields.'}
-            </Alert>
-          ) : (
-            <Box>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                {sourceFields.length} fields detected
-              </Typography>
-              
-              <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
-                {sourceFields.map((field, index) => {
-                  const isSelected = selectedSourceField?.name === field.name
-                  const mappedTargets = mappings.filter(m => m.sourceField === field.name)
-                  const isAlreadyMapped = mappedTargets.length > 0
-                  
-                  return (
-                    <FieldCard 
-                      key={index} 
-                      variant="outlined"
-                      onClick={() => setSelectedSourceField(isSelected ? null : field)}
-                      sx={{ 
-                        cursor: 'pointer',
-                        bgcolor: isSelected ? 'primary.light' : 'inherit',
-                        borderColor: isSelected ? 'primary.main' : 'divider',
-                        position: 'relative',
-                        '&:hover': { 
-                          bgcolor: isSelected ? 'primary.main' : 'action.hover',
-                          borderColor: isSelected ? 'primary.main' : 'divider'
-                        }
-                      }}
-                    >
-                      {/* Connection Indicator */}
-                      {isAlreadyMapped && (
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            right: -6,
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            width: 12,
-                            height: 12,
-                            borderRadius: '50%',
-                            bgcolor: 'grey.400',
-                            border: '2px solid white',
-                            boxShadow: 1,
-                            zIndex: 1,
-                          }}
-                        />
-                      )}
-
-                      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                        <Box display="flex" alignItems="center" justifyContent="space-between">
-                          <Box flex={1}>
-                            <Typography variant="subtitle2" noWrap>
-                              {field.name}
-                              {isSelected && (
-                                <Chip
-                                  label="Selected"
-                                  size="small"
-                                  color="primary"
-                                  variant="filled"
-                                  sx={{ ml: 1 }}
-                                />
-                              )}
-                            </Typography>
-                            <Box display="flex" gap={1} alignItems="center" mt={0.5}>
-                              <Chip
-                                label={field.type}
-                                size="small"
-                                variant="outlined"
-                                color="default"
-                              />
-                              {field.sample && (
-                                <Typography
-                                  variant="caption"
-                                  color="text.secondary"
-                                  sx={{ 
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                    maxWidth: 100
-                                  }}
-                                >
-                                  "{field.sample}"
-                                </Typography>
-                              )}
-                            </Box>
-                            {/* Show mapped targets */}
-                            {mappedTargets.length > 0 && (
-                              <Box mt={0.5}>
-                                {mappedTargets.map((mapping, idx) => (
-                                  <Chip
-                                    key={idx}
-                                    label={`→ ${mapping.targetField}`}
-                                    size="small"
-                                    variant="outlined"
-                                    color="default"
-                                    sx={{ mr: 0.5, mb: 0.5, fontSize: '0.7rem' }}
-                                  />
-                                ))}
-                              </Box>
-                            )}
-                          </Box>
-                          <Box display="flex" alignItems="center">
-                            <Typography
-                              variant="caption"
-                              color={isAlreadyMapped ? 'text.primary' : 'text.disabled'}
-                              sx={{ mr: 1 }}
-                            >
-                              {mappedTargets.length}
-                            </Typography>
-                            <DragIcon color="action" />
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </FieldCard>
-                  )
-                })}
-              </Box>
-            </Box>
-          )}
-        </Paper>
-
-        {/* Mapping Rules */}
-        <Paper sx={{ p: 2 }}>
-          <Typography variant="h6" gutterBottom color="secondary">
-            Field Mappings
-          </Typography>
-          
-          {mappings.length === 0 ? (
-            <DropZone>
-              <Typography color="text.secondary" variant="body2">
-                No mappings created yet.
-                <br />
-                Click fields to create mappings or use Auto Map.
-              </Typography>
-            </DropZone>
-          ) : (
-            <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
-              {mappings.map((mapping) => (
-                <Box
-                  key={mapping.id}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    p: 1.5,
-                    mb: 1,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 2,
-                    bgcolor: 'background.paper',
-                    '&:hover': {
-                      bgcolor: 'action.hover',
-                      borderColor: 'primary.main',
-                    },
-                  }}
-                >
-                  {/* Source Field */}
-                  <Box
-                    sx={{
-                      flex: 1,
-                      p: 1,
-                      borderRadius: 1,
-                      bgcolor: 'primary.light',
-                      color: 'primary.contrastText',
-                      textAlign: 'center',
-                    }}
-                  >
-                    <Typography variant="body2" fontWeight="medium" noWrap>
-                      {mapping.sourceField}
-                    </Typography>
-                  </Box>
-
-                  {/* Connector Arrow */}
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      mx: 1,
-                      minWidth: 40,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 20,
-                        height: 2,
-                        bgcolor: 'primary.main',
-                        borderRadius: 1,
-                      }}
-                    />
-                    <ArrowIcon
-                      sx={{
-                        color: 'primary.main',
-                        fontSize: 16,
-                        ml: -0.5,
-                      }}
-                    />
-                  </Box>
-
-                  {/* Target Field */}
-                  <Box
-                    sx={{
-                      flex: 1,
-                      p: 1,
-                      borderRadius: 1,
-                      bgcolor: 'success.light',
-                      color: 'success.contrastText',
-                      textAlign: 'center',
-                    }}
-                  >
-                    <Typography variant="body2" fontWeight="medium" noWrap>
-                      {mapping.targetField}
-                    </Typography>
-                  </Box>
-
-                  {/* Transformation Rule Badge */}
-                  {mapping.transformationRule && (
-                    <Chip
-                      label={mapping.transformationRule}
-                      size="small"
-                      color="warning"
-                      variant="outlined"
-                      sx={{ ml: 1 }}
-                    />
-                  )}
-
-                  {/* Delete Button */}
-                  <IconButton
-                    size="small"
-                    onClick={() => removeMapping(mapping.id)}
-                    disabled={disabled}
-                    sx={{ ml: 1 }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              ))}
-            </Box>
-          )}
-        </Paper>
-
-        {/* Target Fields */}
-        <Paper sx={{ p: 2 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-            <Typography variant="h6" color="success.main">
-              Target Fields ({targetFormat})
-            </Typography>
-            <IconButton
-              size="small"
-              onClick={addTargetField}
-              disabled={disabled}
-              title="Add custom field"
-            >
-              <AddIcon />
-            </IconButton>
-          </Box>
-          
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            {targetFields.length} fields available
-          </Typography>
-          
-          <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
-            {targetFields.map((field, index) => {
-              const mappedSources = mappings.filter(m => m.targetField === field.name)
-              const isAlreadyMapped = mappedSources.length > 0
-              const canMap = selectedSourceField && !disabled
-              
-              return (
-                <FieldCard 
-                  key={index} 
-                  variant="outlined"
-                  onClick={() => {
-                    if (selectedSourceField) {
-                      addMapping(selectedSourceField, field)
-                      setSelectedSourceField(null)
-                    }
-                  }}
-                  sx={{ 
-                    cursor: canMap ? 'pointer' : 'default',
-                    bgcolor: 'inherit',
-                    borderColor: 'divider',
-                    position: 'relative',
-                    '&:hover': { 
-                      bgcolor: canMap ? 'action.hover' : 'inherit',
-                      borderColor: canMap ? 'divider' : 'divider'
-                    }
-                  }}
-                >
-                  {/* Connection Indicator */}
-                  {isAlreadyMapped && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: -6,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        width: 12,
-                        height: 12,
-                        borderRadius: '50%',
-                        bgcolor: 'grey.400',
-                        border: '2px solid white',
-                        boxShadow: 1,
-                        zIndex: 1,
-                      }}
-                    />
-                  )}
-
-                  <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                    <Box display="flex" alignItems="center" justifyContent="space-between">
-                      <Box display="flex" alignItems="center">
-                        <DragIcon color="action" />
-                        <Typography
-                          variant="caption"
-                          color={isAlreadyMapped ? 'text.primary' : 'text.disabled'}
-                          sx={{ mr: 1 }}
-                        >
-                          {mappedSources.length}
-                        </Typography>
-                      </Box>
-                      <Box flex={1} textAlign="right">
-                        <Typography variant="subtitle2" noWrap>
-                          {field.name}
-                          {field.required && (
-                            <Chip
-                              label="Required"
-                              size="small"
-                              color="error"
-                              variant="outlined"
-                              sx={{ ml: 1 }}
-                            />
-                          )}
-                        </Typography>
-                        <Box display="flex" gap={1} alignItems="center" justifyContent="flex-end" mt={0.5}>
-                          <Chip
-                            label={field.type}
-                            size="small"
-                            variant="outlined"
-                            color="default"
-                          />
-                          {field.description && (
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                              sx={{ 
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                maxWidth: 100
-                              }}
-                            >
-                              {field.description}
-                            </Typography>
-                          )}
-                        </Box>
-                        {/* Show mapped sources */}
-                        {mappedSources.length > 0 && (
-                          <Box mt={0.5} textAlign="right">
-                            {mappedSources.map((mapping, idx) => (
-                              <Chip
-                                key={idx}
-                                label={`${mapping.sourceField} →`}
-                                size="small"
-                                variant="outlined"
-                                color="default"
-                                sx={{ mr: 0.5, mb: 0.5, fontSize: '0.7rem' }}
-                              />
-                            ))}
-                          </Box>
-                        )}
-                      </Box>
-                    </Box>
-                  </CardContent>
-                </FieldCard>
-              )
-            })}
-          </Box>
-        </Paper>
-      </Box>
 
       {/* Advanced Options */}
       <Accordion 
@@ -1340,7 +960,7 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
             <Button
               variant="contained"
               onClick={() => {
-                onPreview(mappings)
+                onPreview?.(mappings)
                 setPreviewDialogOpen(false)
               }}
             >
