@@ -1,0 +1,197 @@
+{
+  "enterprise": {
+    "id": "ENT-2025",
+    "name": "GlobalTech Solutions",
+    "founded": "2010-01-15",
+    "headquarters": {
+      "address": {
+        "street": "100 Innovation Drive",
+        "city": "San Francisco",
+        "state": "California",
+        "country": "USA",
+        "zipCode": "94105"
+      },
+      "coordinates": {
+        "latitude": 37.7749,
+        "longitude": -122.4194
+      }
+    },
+    "departments": [
+      {
+        "id": "DEPT-001",
+        "name": "Engineering",
+        "budget": 2500000,
+        "head": {
+          "name": "Sarah Chen",
+          "email": "sarah.chen@globaltech.com",
+          "experience": 12
+        },
+        "teams": [
+          {
+            "name": "Frontend",
+            "members": [
+              {
+                "id": "EMP-001",
+                "name": "Alex Rodriguez",
+                "email": "alex.rodriguez@globaltech.com",
+                "position": "Senior Frontend Developer",
+                "skills": ["React", "TypeScript", "Vue.js"],
+                "salary": 95000,
+                "projects": [
+                  {
+                    "name": "Dashboard Redesign",
+                    "status": "in-progress",
+                    "priority": "high",
+                    "deadline": "2025-08-15"
+                  },
+                  {
+                    "name": "Mobile App",
+                    "status": "planning",
+                    "priority": "medium",
+                    "deadline": "2025-12-01"
+                  }
+                ]
+              },
+              {
+                "id": "EMP-002",
+                "name": "Maria Gonzalez",
+                "email": "maria.gonzalez@globaltech.com",
+                "position": "Frontend Developer",
+                "skills": ["React", "JavaScript", "CSS"],
+                "salary": 75000,
+                "projects": [
+                  {
+                    "name": "Component Library",
+                    "status": "completed",
+                    "priority": "low",
+                    "deadline": "2025-06-30"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Backend",
+            "members": [
+              {
+                "id": "EMP-003",
+                "name": "David Kim",
+                "email": "david.kim@globaltech.com",
+                "position": "Senior Backend Developer",
+                "skills": ["Java", "Spring Boot", "PostgreSQL"],
+                "salary": 98000,
+                "projects": [
+                  {
+                    "name": "API Gateway",
+                    "status": "in-progress",
+                    "priority": "high",
+                    "deadline": "2025-09-01"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "DEPT-002",
+        "name": "Sales",
+        "budget": 800000,
+        "head": {
+          "name": "Michael Johnson",
+          "email": "michael.johnson@globaltech.com",
+          "experience": 8
+        },
+        "teams": [
+          {
+            "name": "Enterprise Sales",
+            "members": [
+              {
+                "id": "EMP-004",
+                "name": "Lisa Wang",
+                "email": "lisa.wang@globaltech.com",
+                "position": "Sales Director",
+                "skills": ["Negotiation", "CRM", "Business Development"],
+                "salary": 85000,
+                "projects": [
+                  {
+                    "name": "Q3 Enterprise Deals",
+                    "status": "in-progress",
+                    "priority": "high",
+                    "deadline": "2025-09-30"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "clients": [
+      {
+        "id": "CLIENT-001",
+        "name": "TechStart Inc",
+        "industry": "Technology",
+        "contracts": [
+          {
+            "id": "CONTRACT-001",
+            "value": 250000,
+            "duration": "12 months",
+            "services": ["Development", "Consulting"],
+            "renewals": [
+              {
+                "date": "2024-01-15",
+                "value": 300000
+              },
+              {
+                "date": "2025-01-15",
+                "value": 350000
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "CLIENT-002",
+        "name": "FinanceFlow Corp",
+        "industry": "Finance",
+        "contracts": [
+          {
+            "id": "CONTRACT-002",
+            "value": 150000,
+            "duration": "6 months",
+            "services": ["Development"],
+            "renewals": [
+              {
+                "date": "2024-07-15",
+                "value": 180000
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "metrics": {
+      "totalEmployees": 4,
+      "averageSalary": 88250,
+      "totalRevenue": 1030000,
+      "quarterlyGrowth": [
+        {
+          "quarter": "Q1-2025",
+          "revenue": 245000,
+          "growth": 12.5
+        },
+        {
+          "quarter": "Q2-2025",
+          "revenue": 280000,
+          "growth": 14.3
+        },
+        {
+          "quarter": "Q3-2025",
+          "revenue": 320000,
+          "growth": 14.3
+        }
+      ]
+    }
+  }
+}

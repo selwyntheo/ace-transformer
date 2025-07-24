@@ -129,7 +129,17 @@ public class UniversalTransformationService {
                     // Apply transformation rule if specified
                     Object transformedValue = sourceValue;
                     if (mapping.getTransformationRule() != null && !mapping.getTransformationRule().isEmpty()) {
-                        transformedValue = applyTransformationRule(sourceValue, mapping.getTransformationRule());
+                        // If the source value is a list, apply transformation to each item
+                        if (sourceValue instanceof java.util.List) {
+                            java.util.List<?> sourceList = (java.util.List<?>) sourceValue;
+                            java.util.List<Object> transformedList = new java.util.ArrayList<>();
+                            for (Object item : sourceList) {
+                                transformedList.add(applyTransformationRule(item, mapping.getTransformationRule()));
+                            }
+                            transformedValue = transformedList;
+                        } else {
+                            transformedValue = applyTransformationRule(sourceValue, mapping.getTransformationRule());
+                        }
                     }
                     setNestedValue(mappedData, mapping.getTargetField(), transformedValue);
                 }
@@ -167,7 +177,12 @@ public class UniversalTransformationService {
                             if (item instanceof Map) {
                                 Object value = getNestedValueFromMap((Map<?, ?>) item, remainingPath);
                                 if (value != null) {
-                                    results.add(value);
+                                    // If the value is a list (from nested arrays), add all items
+                                    if (value instanceof java.util.List) {
+                                        results.addAll((java.util.List<?>) value);
+                                    } else {
+                                        results.add(value);
+                                    }
                                 }
                             }
                         }
@@ -203,8 +218,45 @@ public class UniversalTransformationService {
         String[] parts = fieldPath.split("\\.");
         Object current = map;
         
-        for (String part : parts) {
-            if (current instanceof Map) {
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            
+            if (part.contains("[]")) {
+                // Handle array notation in nested paths
+                String arrayKey = part.replace("[]", "");
+                if (current instanceof Map) {
+                    current = ((Map<?, ?>) current).get(arrayKey);
+                    if (current instanceof java.util.List) {
+                        java.util.List<?> list = (java.util.List<?>) current;
+                        
+                        // If this is the last part, return the list
+                        if (i == parts.length - 1) {
+                            return current;
+                        }
+                        
+                        // Continue processing with remaining path on each list item
+                        java.util.List<Object> results = new java.util.ArrayList<>();
+                        String remainingPath = String.join(".", java.util.Arrays.copyOfRange(parts, i + 1, parts.length));
+                        
+                        for (Object item : list) {
+                            if (item instanceof Map) {
+                                Object value = getNestedValueFromMap((Map<?, ?>) item, remainingPath);
+                                if (value != null) {
+                                    // If the value is a list (from nested arrays), add all items
+                                    if (value instanceof java.util.List) {
+                                        results.addAll((java.util.List<?>) value);
+                                    } else {
+                                        results.add(value);
+                                    }
+                                }
+                            }
+                        }
+                        return results.isEmpty() ? null : results;
+                    }
+                } else {
+                    return null;
+                }
+            } else if (current instanceof Map) {
                 current = ((Map<?, ?>) current).get(part);
             } else {
                 return null;
