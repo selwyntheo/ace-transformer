@@ -1,0 +1,13 @@
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/UniversalDataTransformerApplication.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/parser/DataParser.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/dto/AdvancedTransformationRequest.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/dto/FieldMappingRequest.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/model/DataFormat.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/service/UniversalTransformationService.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/parser/JsonDataParser.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/service/MappingConfigurationService.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/model/MappingConfiguration.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/controller/TransformationController.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/model/FieldMapping.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/dto/TransformationRequest.java
+/Volumes/D/Projects/AceTransformer/src/main/java/com/acetransformer/universaldatatransformer/dto/TransformationResponse.java

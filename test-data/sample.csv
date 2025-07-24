@@ -1,0 +1,5 @@
+id,name,email,department,salary,city,state
+1,John Doe,john.doe@company.com,Engineering,75000,San Francisco,CA
+2,Jane Smith,jane.smith@company.com,Marketing,65000,Los Angeles,CA
+3,Bob Johnson,bob.johnson@company.com,Sales,55000,Chicago,IL
+4,Alice Brown,alice.brown@company.com,HR,60000,New York,NY

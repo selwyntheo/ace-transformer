@@ -1,0 +1,32 @@
+{
+  "employees": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john.doe@company.com",
+      "department": "Engineering",
+      "salary": 75000,
+      "address": {
+        "street": "123 Main St",
+        "city": "San Francisco",
+        "state": "CA",
+        "zipCode": "94105"
+      },
+      "skills": ["Java", "Python", "React"]
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "email": "jane.smith@company.com",
+      "department": "Marketing",
+      "salary": 65000,
+      "address": {
+        "street": "456 Oak Ave",
+        "city": "Los Angeles",
+        "state": "CA",
+        "zipCode": "90210"
+      },
+      "skills": ["Digital Marketing", "Analytics", "SEO"]
+    }
+  ]
+}

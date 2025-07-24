@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AceTransformer - Universal Data Mapping & Transformation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-light: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .format-selector {
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .format-selector:hover {
+            border-color: var(--primary-color);
+            background-color: #eff6ff;
+        }
+
+        .format-selector.selected {
+            border-color: var(--primary-color);
+            background-color: #dbeafe;
+            color: var(--primary-color);
+        }
+
+        .data-area {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            min-height: 300px;
+            background-color: #f8fafc;
+            border: 2px dashed var(--border-color);
+            border-radius: 0.5rem;
+            resize: vertical;
+        }
+
+        .data-area:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .mapping-container {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .field-mapping {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .field-mapping:hover {
+            border-color: var(--primary-color);
+            background-color: #f0f9ff;
+        }
+
+        .mapping-arrow {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Enhanced dropdown styling */
+        .form-select-lg {
+            padding: 0.75rem 1rem;
+            font-size: 1.1rem;
+            border-radius: 0.5rem;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .form-select-lg:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-select-lg option {
+            padding: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .format-dropdown-wrapper {
+            position: relative;
+        }
+
+        .format-dropdown-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 2.5rem;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #6b7280;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            transform: translateY(-1px);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-success { background-color: var(--success-color); }
+        .status-warning { background-color: var(--warning-color); }
+        .status-error { background-color: var(--danger-color); }
+
+        .file-drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+
+        .file-drop-zone:hover,
+        .file-drop-zone.dragover {
+            border-color: var(--primary-color);
+            background-color: #f0f9ff;
+        }
+
+        .transformation-rule {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .preview-panel {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .tabs {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            color: var(--secondary-color);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab:hover {
+            background-color: #f1f5f9;
+        }
+
+        .sample-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sample-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* New UI Component Styles */
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: var(--primary-color);
+            background-color: #f0f9ff;
+        }
+
+        .drop-zone-content {
+            pointer-events: none;
+        }
+
+        .format-selector {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .format-selector:hover {
+            border-color: var(--primary-color);
+            background-color: #f8fafc;
+        }
+
+        .format-selector.selected {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .file-info {
+            background: #f1f5f9;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+
+        .result-area {
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .fields-container {
+            min-height: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            background: #fafafa;
+        }
+
+        .field-item {
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .field-item:hover {
+            background-color: #e2e8f0 !important;
+        }
+
+        .field-item.dragging {
+            opacity: 0.5;
+        }
+
+        .field-item.droppable {
+            border-style: dashed !important;
+        }
+
+        .mapping-arrow {
+            display: flex;
+            align-items: center;
+            height: 200px;
+        }
+
+        .mapping-rules-container {
+            min-height: 100px;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background: #fafafa;
+        }
+
+        .mapping-rule {
+            background: #fff;
+            border: 1px solid #d1d5db;
+        }
+
+        .navbar-dark {
+            background: linear-gradient(135deg, var(--primary-color), #2563eb);
+        }
+
+        .card-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 0.5rem;
+            }
+            
+            .mapping-arrow {
+                height: auto;
+                margin: 1rem 0;
+            }
+            
+            .mapping-arrow i {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-exchange-alt me-2"></i>
+                AceTransformer
+            </a>
+            <span class="navbar-text">
+                Universal Data Mapping & Transformation Platform
+            </span>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('quick-transform')">
+                <i class="fas fa-bolt me-2"></i>Quick Transform
+            </button>
+            <button class="tab" onclick="showTab('advanced-mapping')">
+                <i class="fas fa-project-diagram me-2"></i>Advanced Mapping
+            </button>
+            <button class="tab" onclick="showTab('saved-configs')">
+                <i class="fas fa-save me-2"></i>Saved Configurations
+            </button>
+        </div>
+
+        <!-- Quick Transform Tab -->
+        <div id="quick-transform" class="tab-content">
+            <div class="row">
+                <!-- Format Selection -->
+                <div class="col-lg-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exchange-alt me-2 text-primary"></i>
+                                Format Selection
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="quickSourceFormat" class="form-label">
+                                        <i class="fas fa-file-import me-2 text-primary"></i>
+                                        Source Format
+                                    </label>
+                                    <select class="form-select form-select-lg" id="quickSourceFormat">
+                                        <option value="">Select source format</option>
+                                        <option value="JSON" data-icon="fab fa-js-square" data-color="text-warning">
+                                            📄 JSON - JavaScript Object Notation
+                                        </option>
+                                        <option value="XML" data-icon="fas fa-code" data-color="text-info">
+                                            🏷️ XML - Extensible Markup Language
+                                        </option>
+                                        <option value="CSV" data-icon="fas fa-table" data-color="text-success">
+                                            📊 CSV - Comma Separated Values
+                                        </option>
+                                        <option value="TXT" data-icon="fas fa-file-alt" data-color="text-secondary">
+                                            📝 TXT - Plain Text
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="quickTargetFormat" class="form-label">
+                                        <i class="fas fa-file-export me-2 text-success"></i>
+                                        Target Format
+                                    </label>
+                                    <select class="form-select form-select-lg" id="quickTargetFormat">
+                                        <option value="">Select target format</option>
+                                        <option value="JSON" data-icon="fab fa-js-square" data-color="text-warning">
+                                            📄 JSON - JavaScript Object Notation
+                                        </option>
+                                        <option value="XML" data-icon="fas fa-code" data-color="text-info">
+                                            🏷️ XML - Extensible Markup Language
+                                        </option>
+                                        <option value="CSV" data-icon="fas fa-table" data-color="text-success">
+                                            📊 CSV - Comma Separated Values
+                                        </option>
+                                        <option value="TXT" data-icon="fas fa-file-alt" data-color="text-secondary">
+                                            📝 TXT - Plain Text
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Upload & Transformation -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-upload me-2 text-primary"></i>
+                                Upload Source File
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="drop-zone" id="sourceDropZone">
+                                <div class="drop-zone-content">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                    <h6 class="text-muted">Drag & Drop your file here</h6>
+                                    <p class="text-muted small mb-3">or click to browse</p>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('sourceFileInput').click()">
+                                        <i class="fas fa-folder-open me-2"></i>Browse Files
+                                    </button>
+                                    <input type="file" id="sourceFileInput" style="display: none;" accept=".json,.xml,.csv,.txt">
+                                </div>
+                            </div>
+                            <div id="sourceFileInfo" class="file-info mt-3" style="display: none;">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file me-2 text-success"></i>
+                                    <span class="file-name"></span>
+                                    <span class="file-size ms-auto text-muted"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-download me-2 text-success"></i>
+                                Transformed Result
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="result-area" id="resultArea">
+                                <div class="text-center text-muted py-5">
+                                    <i class="fas fa-magic fa-3x mb-3"></i>
+                                    <p>Upload a file and select formats to see the transformation result</p>
+                                </div>
+                            </div>
+                            <div class="mt-3" id="downloadSection" style="display: none;">
+                                <button class="btn btn-success" id="downloadBtn">
+                                    <i class="fas fa-download me-2"></i>Download Result
+                                </button>
+                                <button class="btn btn-outline-secondary ms-2" id="copyBtn">
+                                    <i class="fas fa-copy me-2"></i>Copy to Clipboard
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Transform Button -->
+            <div class="row">
+                <div class="col-12 text-center mb-4">
+                    <button class="btn btn-primary btn-lg px-5" id="quickTransformBtn" disabled>
+                        <i class="fas fa-play me-2"></i>Transform Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Mapping Tab -->
+        <div id="advanced-mapping" class="tab-content" style="display: none;">
+            <div class="row">
+                <!-- Mapping Configuration -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cog me-2 text-primary"></i>
+                                Mapping Configuration
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="configName" class="form-label">Configuration Name</label>
+                                <input type="text" class="form-control" id="configName" placeholder="My Mapping Config">
+                            </div>
+                            <div class="mb-3">
+                                <label for="configDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="configDescription" rows="3" placeholder="Describe this mapping configuration..."></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="form-label">Source Format</label>
+                                    <select class="form-select" id="advancedSourceFormat">
+                                        <option value="">Select format</option>
+                                        <option value="JSON">JSON</option>
+                                        <option value="XML">XML</option>
+                                        <option value="CSV">CSV</option>
+                                        <option value="TXT">TXT</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Target Format</label>
+                                    <select class="form-select" id="advancedTargetFormat">
+                                        <option value="">Select format</option>
+                                        <option value="JSON">JSON</option>
+                                        <option value="XML">XML</option>
+                                        <option value="CSV">CSV</option>
+                                        <option value="TXT">TXT</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-primary w-100" id="saveConfigBtn">
+                                    <i class="fas fa-save me-2"></i>Save Configuration
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Field Mapping Editor -->
+                <div class="col-lg-8 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exchange-alt me-2 text-primary"></i>
+                                Field Mapping Editor
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <h6 class="text-muted mb-3">Source Fields</h6>
+                                    <div id="sourceFields" class="fields-container">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-upload fa-2x mb-2"></i>
+                                            <p>Upload a file to detect source fields</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <div class="mapping-arrow">
+                                        <i class="fas fa-arrow-right fa-2x text-muted"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <h6 class="text-muted mb-3">Target Fields</h6>
+                                    <div id="targetFields" class="fields-container">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-plus fa-2x mb-2"></i>
+                                            <p>Define target field structure</p>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-outline-primary btn-sm mt-2" id="addTargetField">
+                                        <i class="fas fa-plus me-2"></i>Add Field
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Mapping Rules -->
+                            <div class="mt-4">
+                                <h6 class="text-muted mb-3">Transformation Rules</h6>
+                                <div id="mappingRules" class="mapping-rules-container">
+                                    <div class="text-center text-muted py-3">
+                                        <p>Drag source fields to target fields to create mappings</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="mt-4 text-center">
+                                <button class="btn btn-success px-4" id="applyMappingBtn" disabled>
+                                    <i class="fas fa-magic me-2"></i>Apply Mapping
+                                </button>
+                                <button class="btn btn-outline-secondary ms-2" id="previewMappingBtn" disabled>
+                                    <i class="fas fa-eye me-2"></i>Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saved Configurations Tab -->
+        <div id="saved-configs" class="tab-content" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-database me-2 text-primary"></i>
+                                Saved Mapping Configurations
+                            </h5>
+                            <button class="btn btn-outline-primary btn-sm" id="refreshConfigsBtn">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="savedConfigsList">
+                                <div class="text-center text-muted py-5">
+                                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                    <p>No saved configurations found</p>
+                                    <p class="small">Create a configuration in the Advanced Mapping tab</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application State
+        let currentTab = 'quick-transform';
+        let selectedSourceFormat = null;
+        let selectedTargetFormat = null;
+        let sourceFileData = null;
+        let mappingRules = [];
+        let savedConfigurations = [];
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            loadSavedConfigurations();
+        });
+
+        // Event Listeners
+        function initializeEventListeners() {
+            // Tab navigation
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                    showTab(tabId);
+                });
+            });
+
+            // Format selector dropdowns
+            const quickSourceFormat = document.getElementById('quickSourceFormat');
+            const quickTargetFormat = document.getElementById('quickTargetFormat');
+
+            if (quickSourceFormat) {
+                quickSourceFormat.addEventListener('change', function() {
+                    selectedSourceFormat = this.value;
+                    updateTransformButton();
+                });
+            }
+
+            if (quickTargetFormat) {
+                quickTargetFormat.addEventListener('change', function() {
+                    selectedTargetFormat = this.value;
+                    updateTransformButton();
+                });
+            }
+
+            // File upload
+            const sourceFileInput = document.getElementById('sourceFileInput');
+            const sourceDropZone = document.getElementById('sourceDropZone');
+
+            if (sourceFileInput) {
+                sourceFileInput.addEventListener('change', handleFileSelect);
+            }
+            
+            if (sourceDropZone) {
+                // Drag and drop
+                sourceDropZone.addEventListener('dragover', handleDragOver);
+                sourceDropZone.addEventListener('dragleave', handleDragLeave);
+                sourceDropZone.addEventListener('drop', handleFileDrop);
+            }
+
+            // Transform buttons
+            const quickTransformBtn = document.getElementById('quickTransformBtn');
+            const applyMappingBtn = document.getElementById('applyMappingBtn');
+            const previewMappingBtn = document.getElementById('previewMappingBtn');
+
+            if (quickTransformBtn) quickTransformBtn.addEventListener('click', performQuickTransform);
+            if (applyMappingBtn) applyMappingBtn.addEventListener('click', performAdvancedMapping);
+            if (previewMappingBtn) previewMappingBtn.addEventListener('click', previewMapping);
+
+            // Configuration management
+            const saveConfigBtn = document.getElementById('saveConfigBtn');
+            const refreshConfigsBtn = document.getElementById('refreshConfigsBtn');
+
+            if (saveConfigBtn) saveConfigBtn.addEventListener('click', saveConfiguration);
+            if (refreshConfigsBtn) refreshConfigsBtn.addEventListener('click', loadSavedConfigurations);
+
+            // Advanced mapping
+            const addTargetFieldBtn = document.getElementById('addTargetField');
+            const advancedSourceFormat = document.getElementById('advancedSourceFormat');
+            const advancedTargetFormat = document.getElementById('advancedTargetFormat');
+
+            if (addTargetFieldBtn) addTargetFieldBtn.addEventListener('click', addTargetField);
+            if (advancedSourceFormat) advancedSourceFormat.addEventListener('change', handleAdvancedFormatChange);
+            if (advancedTargetFormat) advancedTargetFormat.addEventListener('change', handleAdvancedFormatChange);
+
+            // Download and copy
+            const downloadBtn = document.getElementById('downloadBtn');
+            const copyBtn = document.getElementById('copyBtn');
+
+            if (downloadBtn) downloadBtn.addEventListener('click', downloadResult);
+            if (copyBtn) copyBtn.addEventListener('click', copyToClipboard);
+        }
+
+        // Tab Management
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.style.display = 'block';
+            }
+            
+            // Add active class to selected tab
+            const tabButton = document.querySelector(`[onclick*="${tabId}"]`);
+            if (tabButton) {
+                tabButton.classList.add('active');
+            }
+            
+            currentTab = tabId;
+        }
+
+        // Format Selection (for advanced mapping cards - legacy support)
+        function selectFormat(format, type, element) {
+            // Remove selection from other formats of the same type
+            document.querySelectorAll(`.format-selector[data-type="${type}"]`).forEach(sel => {
+                sel.classList.remove('selected');
+            });
+
+            // Add selection to clicked element
+            element.classList.add('selected');
+
+            if (type === 'source') {
+                selectedSourceFormat = format;
+                // Update dropdown if it exists
+                const sourceSelect = document.getElementById('quickSourceFormat');
+                if (sourceSelect) sourceSelect.value = format;
+            } else {
+                selectedTargetFormat = format;
+                // Update dropdown if it exists
+                const targetSelect = document.getElementById('quickTargetFormat');
+                if (targetSelect) targetSelect.value = format;
+            }
+
+            updateTransformButton();
+        }
+
+        // File Handling
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.currentTarget.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function processFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                sourceFileData = e.target.result;
+                displayFileInfo(file);
+                
+                // Auto-detect format if not selected
+                if (!selectedSourceFormat) {
+                    const detectedFormat = detectFileFormat(file.name, sourceFileData);
+                    if (detectedFormat) {
+                        selectedSourceFormat = detectedFormat;
+                        
+                        // Update dropdown
+                        const sourceSelect = document.getElementById('quickSourceFormat');
+                        if (sourceSelect) {
+                            sourceSelect.value = detectedFormat;
+                        }
+                        
+                        // Update card selector if it exists (for advanced mapping)
+                        const formatElement = document.querySelector(`.format-selector[data-format="${detectedFormat}"][data-type="source"]`);
+                        if (formatElement) {
+                            selectFormat(detectedFormat, 'source', formatElement);
+                        }
+                    }
+                }
+
+                updateTransformButton();
+                
+                // Extract fields for advanced mapping
+                if (currentTab === 'advanced-mapping') {
+                    extractSourceFields(sourceFileData, selectedSourceFormat);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function displayFileInfo(file) {
+            const fileInfo = document.getElementById('sourceFileInfo');
+            if (fileInfo) {
+                const fileName = fileInfo.querySelector('.file-name');
+                const fileSize = fileInfo.querySelector('.file-size');
+                
+                if (fileName) fileName.textContent = file.name;
+                if (fileSize) fileSize.textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'block';
+            }
+        }
+
+        function detectFileFormat(fileName, content) {
+            const extension = fileName.split('.').pop().toLowerCase();
+            
+            switch (extension) {
+                case 'json': return 'JSON';
+                case 'xml': return 'XML';
+                case 'csv': return 'CSV';
+                case 'txt': return 'TXT';
+                default:
+                    // Try to detect by content
+                    try {
+                        JSON.parse(content);
+                        return 'JSON';
+                    } catch (e) {
+                        if (content.includes('<?xml') || content.includes('<')) {
+                            return 'XML';
+                        } else if (content.includes(',') && content.includes('\n')) {
+                            return 'CSV';
+                        }
+                        return 'TXT';
+                    }
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Transform Operations
+        function updateTransformButton() {
+            const quickBtn = document.getElementById('quickTransformBtn');
+            if (quickBtn) {
+                const canTransform = selectedSourceFormat && selectedTargetFormat && sourceFileData;
+                quickBtn.disabled = !canTransform;
+            }
+        }
+
+        async function performQuickTransform() {
+            if (!sourceFileData || !selectedSourceFormat || !selectedTargetFormat) {
+                showAlert('Please select formats and upload a file', 'warning');
+                return;
+            }
+
+            try {
+                showLoading(true);
+                
+                const response = await fetch('/api/transform', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sourceData: sourceFileData,
+                        sourceFormat: selectedSourceFormat,
+                        targetFormat: selectedTargetFormat
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    displayTransformResult(result.transformedData);
+                    showAlert('Transformation completed successfully!', 'success');
+                } else {
+                    const error = await response.text();
+                    showAlert('Transformation failed: ' + error, 'danger');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'danger');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayTransformResult(data) {
+            const resultArea = document.getElementById('resultArea');
+            const downloadSection = document.getElementById('downloadSection');
+            
+            if (resultArea) {
+                resultArea.innerHTML = `
+                    <div class="preview-panel">
+                        <pre><code>${escapeHtml(data)}</code></pre>
+                    </div>
+                `;
+            }
+            
+            if (downloadSection) {
+                downloadSection.style.display = 'block';
+            }
+            
+            // Store result for download
+            window.transformResult = data;
+        }
+
+        // Advanced Mapping
+        function extractSourceFields(data, format) {
+            try {
+                let fields = [];
+                
+                switch (format) {
+                    case 'JSON':
+                        const jsonData = JSON.parse(data);
+                        fields = extractJsonFields(jsonData);
+                        break;
+                    case 'CSV':
+                        const lines = data.split('\n');
+                        if (lines.length > 0) {
+                            fields = lines[0].split(',').map(field => field.trim());
+                        }
+                        break;
+                    case 'XML':
+                        fields = extractXmlFields(data);
+                        break;
+                    case 'TXT':
+                        fields = ['line', 'content'];
+                        break;
+                }
+                
+                displaySourceFields(fields);
+            } catch (error) {
+                showAlert('Error extracting fields: ' + error.message, 'warning');
+            }
+        }
+
+        function extractJsonFields(obj, prefix = '') {
+            let fields = [];
+            
+            for (const key in obj) {
+                const fullKey = prefix ? `${prefix}.${key}` : key;
+                
+                if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+                    fields = fields.concat(extractJsonFields(obj[key], fullKey));
+                } else {
+                    fields.push(fullKey);
+                }
+            }
+            
+            return fields;
+        }
+
+        function extractXmlFields(xmlString) {
+            // Simple XML field extraction
+            const matches = xmlString.match(/<([^/>]+)>/g);
+            if (matches) {
+                return [...new Set(matches.map(match => match.slice(1, -1)))];
+            }
+            return [];
+        }
+
+        function displaySourceFields(fields) {
+            const container = document.getElementById('sourceFields');
+            if (container) {
+                container.innerHTML = '';
+                
+                fields.forEach(field => {
+                    const fieldElement = document.createElement('div');
+                    fieldElement.className = 'field-item draggable border rounded p-2 mb-2 bg-light';
+                    fieldElement.draggable = true;
+                    fieldElement.textContent = field;
+                    fieldElement.dataset.field = field;
+                    
+                    fieldElement.addEventListener('dragstart', handleFieldDragStart);
+                    container.appendChild(fieldElement);
+                });
+            }
+        }
+
+        function addTargetField() {
+            const container = document.getElementById('targetFields');
+            const fieldName = prompt('Enter target field name:');
+            
+            if (fieldName && container) {
+                const fieldElement = document.createElement('div');
+                fieldElement.className = 'field-item droppable border rounded p-2 mb-2 bg-light';
+                fieldElement.textContent = fieldName;
+                fieldElement.dataset.field = fieldName;
+                
+                fieldElement.addEventListener('dragover', handleFieldDragOver);
+                fieldElement.addEventListener('drop', handleFieldDrop);
+                
+                container.appendChild(fieldElement);
+            }
+        }
+
+        function handleFieldDragStart(event) {
+            event.dataTransfer.setData('text/plain', event.target.dataset.field);
+        }
+
+        function handleFieldDragOver(event) {
+            event.preventDefault();
+        }
+
+        function handleFieldDrop(event) {
+            event.preventDefault();
+            const sourceField = event.dataTransfer.getData('text/plain');
+            const targetField = event.target.dataset.field;
+            
+            createMappingRule(sourceField, targetField);
+        }
+
+        function createMappingRule(sourceField, targetField) {
+            const rule = {
+                sourceField,
+                targetField,
+                transformation: 'direct'
+            };
+            
+            mappingRules.push(rule);
+            displayMappingRules();
+            
+            // Enable mapping buttons
+            const applyBtn = document.getElementById('applyMappingBtn');
+            const previewBtn = document.getElementById('previewMappingBtn');
+            if (applyBtn) applyBtn.disabled = false;
+            if (previewBtn) previewBtn.disabled = false;
+        }
+
+        function displayMappingRules() {
+            const container = document.getElementById('mappingRules');
+            if (container) {
+                container.innerHTML = '';
+                
+                mappingRules.forEach((rule, index) => {
+                    const ruleElement = document.createElement('div');
+                    ruleElement.className = 'mapping-rule mb-2 p-2 border rounded bg-light';
+                    ruleElement.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>${rule.sourceField}</strong> → <strong>${rule.targetField}</strong></span>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeMappingRule(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(ruleElement);
+                });
+            }
+        }
+
+        function removeMappingRule(index) {
+            mappingRules.splice(index, 1);
+            displayMappingRules();
+            
+            if (mappingRules.length === 0) {
+                const applyBtn = document.getElementById('applyMappingBtn');
+                const previewBtn = document.getElementById('previewMappingBtn');
+                if (applyBtn) applyBtn.disabled = true;
+                if (previewBtn) previewBtn.disabled = true;
+            }
+        }
+
+        async function performAdvancedMapping() {
+            if (!sourceFileData || mappingRules.length === 0) {
+                showAlert('Please upload a file and create field mappings', 'warning');
+                return;
+            }
+
+            try {
+                showLoading(true);
+                
+                const response = await fetch('/api/transform/advanced', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sourceData: sourceFileData,
+                        sourceFormat: selectedSourceFormat || document.getElementById('advancedSourceFormat').value,
+                        targetFormat: selectedTargetFormat || document.getElementById('advancedTargetFormat').value,
+                        mappingRules: mappingRules
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    displayTransformResult(result.transformedData);
+                    showAlert('Advanced mapping completed successfully!', 'success');
+                } else {
+                    const error = await response.text();
+                    showAlert('Mapping failed: ' + error, 'danger');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'danger');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function previewMapping() {
+            showAlert('Preview functionality coming soon!', 'info');
+        }
+
+        // Configuration Management
+        async function saveConfiguration() {
+            const nameEl = document.getElementById('configName');
+            const descEl = document.getElementById('configDescription');
+            const sourceFormatEl = document.getElementById('advancedSourceFormat');
+            const targetFormatEl = document.getElementById('advancedTargetFormat');
+
+            if (!nameEl || !sourceFormatEl || !targetFormatEl) return;
+
+            const name = nameEl.value;
+            const description = descEl ? descEl.value : '';
+            const sourceFormat = sourceFormatEl.value;
+            const targetFormat = targetFormatEl.value;
+
+            if (!name || !sourceFormat || !targetFormat || mappingRules.length === 0) {
+                showAlert('Please fill in all fields and create mappings', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/configurations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        description,
+                        sourceFormat,
+                        targetFormat,
+                        fieldMappings: mappingRules
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('Configuration saved successfully!', 'success');
+                    loadSavedConfigurations();
+                    
+                    // Clear form
+                    nameEl.value = '';
+                    if (descEl) descEl.value = '';
+                } else {
+                    showAlert('Failed to save configuration', 'danger');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'danger');
+            }
+        }
+
+        async function loadSavedConfigurations() {
+            try {
+                const response = await fetch('/api/configurations');
+                if (response.ok) {
+                    savedConfigurations = await response.json();
+                    displaySavedConfigurations();
+                }
+            } catch (error) {
+                console.error('Error loading configurations:', error);
+            }
+        }
+
+        function displaySavedConfigurations() {
+            const container = document.getElementById('savedConfigsList');
+            if (!container) return;
+            
+            if (savedConfigurations.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-folder-open fa-3x mb-3"></i>
+                        <p>No saved configurations found</p>
+                        <p class="small">Create a configuration in the Advanced Mapping tab</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            savedConfigurations.forEach(config => {
+                const configElement = document.createElement('div');
+                configElement.className = 'card mb-3';
+                configElement.innerHTML = `
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-title">${config.name}</h6>
+                                <p class="card-text text-muted small">${config.description}</p>
+                                <div class="badge bg-primary me-2">${config.sourceFormat} → ${config.targetFormat}</div>
+                                <div class="badge bg-secondary">${config.fieldMappings?.length || 0} mappings</div>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary" onclick="loadConfiguration(${config.id})">
+                                    <i class="fas fa-upload"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteConfiguration(${config.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(configElement);
+            });
+        }
+
+        function loadConfiguration(configId) {
+            const config = savedConfigurations.find(c => c.id === configId);
+            if (config) {
+                // Switch to advanced mapping tab
+                showTab('advanced-mapping');
+                
+                // Set format values
+                const sourceFormatEl = document.getElementById('advancedSourceFormat');
+                const targetFormatEl = document.getElementById('advancedTargetFormat');
+                if (sourceFormatEl) sourceFormatEl.value = config.sourceFormat;
+                if (targetFormatEl) targetFormatEl.value = config.targetFormat;
+                
+                // Load mapping rules
+                mappingRules = config.fieldMappings || [];
+                displayMappingRules();
+                
+                showAlert('Configuration loaded successfully!', 'success');
+            }
+        }
+
+        async function deleteConfiguration(configId) {
+            if (confirm('Are you sure you want to delete this configuration?')) {
+                try {
+                    const response = await fetch(`/api/configurations/${configId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        showAlert('Configuration deleted successfully!', 'success');
+                        loadSavedConfigurations();
+                    } else {
+                        showAlert('Failed to delete configuration', 'danger');
+                    }
+                } catch (error) {
+                    showAlert('Error: ' + error.message, 'danger');
+                }
+            }
+        }
+
+        // Utility Functions
+        function showLoading(show) {
+            const buttons = ['quickTransformBtn', 'applyMappingBtn'];
+            buttons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.disabled = show;
+                    const spinner = btn.querySelector('.spinner-border');
+                    if (spinner) {
+                        spinner.classList.toggle('d-none', !show);
+                    }
+                }
+            });
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.createElement('div');
+            alertContainer.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertContainer.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertContainer.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertContainer);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertContainer.parentNode) {
+                    alertContainer.remove();
+                }
+            }, 5000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function downloadResult() {
+            if (window.transformResult) {
+                const blob = new Blob([window.transformResult], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `transformed_data.${selectedTargetFormat ? selectedTargetFormat.toLowerCase() : 'txt'}`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        function copyToClipboard() {
+            if (window.transformResult) {
+                navigator.clipboard.writeText(window.transformResult).then(() => {
+                    showAlert('Result copied to clipboard!', 'success');
+                });
+            }
+        }
+
+        function handleAdvancedFormatChange() {
+            const sourceFormatEl = document.getElementById('advancedSourceFormat');
+            const sourceFormat = sourceFormatEl ? sourceFormatEl.value : null;
+            
+            if (sourceFormat && sourceFileData) {
+                extractSourceFields(sourceFileData, sourceFormat);
+            }
+        }
+    </script>
+</body>
+</html>

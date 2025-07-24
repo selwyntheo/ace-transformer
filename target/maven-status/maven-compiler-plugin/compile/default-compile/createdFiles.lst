@@ -1,0 +1,11 @@
+com/acetransformer/universaldatatransformer/service/UniversalTransformationService.class
+com/acetransformer/universaldatatransformer/parser/JsonDataParser.class
+com/acetransformer/universaldatatransformer/model/FieldMapping.class
+com/acetransformer/universaldatatransformer/dto/TransformationRequest.class
+com/acetransformer/universaldatatransformer/model/MappingConfiguration.class
+com/acetransformer/universaldatatransformer/service/MappingConfigurationService.class
+com/acetransformer/universaldatatransformer/dto/TransformationResponse.class
+com/acetransformer/universaldatatransformer/model/DataFormat.class
+com/acetransformer/universaldatatransformer/parser/DataParser.class
+com/acetransformer/universaldatatransformer/controller/TransformationController.class
+com/acetransformer/universaldatatransformer/service/UniversalTransformationService$1.class

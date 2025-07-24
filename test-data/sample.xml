@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<employees>
+  <employee>
+    <id>1</id>
+    <name>John Doe</name>
+    <email>john.doe@company.com</email>
+    <department>Engineering</department>
+    <salary>75000</salary>
+    <location>
+      <city>San Francisco</city>
+      <state>CA</state>
+    </location>
+  </employee>
+  <employee>
+    <id>2</id>
+    <name>Jane Smith</name>
+    <email>jane.smith@company.com</email>
+    <department>Marketing</department>
+    <salary>65000</salary>
+    <location>
+      <city>Los Angeles</city>
+      <state>CA</state>
+    </location>
+  </employee>
+</employees>
