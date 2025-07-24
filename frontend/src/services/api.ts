@@ -28,8 +28,39 @@ export interface FieldMapping {
   transformationRule?: string
 }
 
+export interface AdvancedTransformOptions {
+  transformationRules?: {
+    id: string
+    name: string
+    type: 'mapping' | 'validation' | 'transformation' | 'filter'
+    condition: string
+    action: string
+    enabled: boolean
+  }[]
+  validationRules?: {
+    id: string
+    field: string
+    type: 'required' | 'format' | 'range' | 'custom'
+    rule: string
+    message: string
+    enabled: boolean
+  }[]
+  validateOnTransform?: boolean
+  strictValidation?: boolean
+  continueOnError?: boolean
+  maxErrors?: number
+  errorReporting?: 'none' | 'summary' | 'detailed'
+  preserveNullValues?: boolean
+  preserveEmptyStrings?: boolean
+  prettifyOutput?: boolean
+  includeMetadata?: boolean
+  batchSize?: number
+  enableParallelProcessing?: boolean
+}
+
 export interface AdvancedTransformRequest extends TransformRequest {
   mappingRules: FieldMapping[]
+  advancedOptions?: AdvancedTransformOptions
 }
 
 export interface MappingConfiguration {

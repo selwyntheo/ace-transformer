@@ -38,7 +38,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: 'grey.50' }}>
+      <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: 'grey.50' }}>
         <AppBar position="static" elevation={0}>
           <Toolbar>
             <TransformIcon sx={{ mr: 2 }} />

@@ -21,6 +21,8 @@ import FormatSelector from '../components/FormatSelector'
 import FileUpload from '../components/FileUpload'
 import TransformationResult from '../components/TransformationResult'
 import FieldMappingInterface from '../components/FieldMappingInterface'
+import AdvancedOptions from '../components/AdvancedOptions'
+import type { AdvancedSettings } from '../components/AdvancedOptions'
 import { SUPPORTED_FORMATS, generateSampleData } from '../utils/formatUtils'
 
 interface TransformationState {
@@ -33,6 +35,7 @@ interface TransformationState {
   error: string | null
   isLoading: boolean
   fieldMappings: FieldMapping[]
+  advancedSettings: AdvancedSettings
 }
 
 const AdvancedTransform: React.FC = () => {
@@ -46,6 +49,28 @@ const AdvancedTransform: React.FC = () => {
     error: null,
     isLoading: false,
     fieldMappings: [],
+    advancedSettings: {
+      transformationRules: [],
+      validationRules: [],
+      validateOnTransform: true,
+      strictValidation: false,
+      batchSize: 1000,
+      maxMemoryUsage: 512,
+      enableParallelProcessing: true,
+      preserveNullValues: false,
+      preserveEmptyStrings: true,
+      prettifyOutput: true,
+      includeMetadata: false,
+      continueOnError: true,
+      maxErrors: 100,
+      errorReporting: 'summary',
+      enableCustomFunctions: false,
+      enableConditionalMapping: true,
+      enableDataAugmentation: false,
+      sanitizeInput: true,
+      enableDataMasking: false,
+      maskingPatterns: ['email', 'phone', 'ssn'],
+    },
   })
 
   const handleSourceFormatSelect = (format: FormatType) => {
@@ -122,7 +147,8 @@ const AdvancedTransform: React.FC = () => {
       sourceFormat: state.sourceFormat,
       targetFormat: state.targetFormat,
       mappings: state.fieldMappings,
-      dataLength: state.sourceData?.length
+      dataLength: state.sourceData?.length,
+      advancedSettings: state.advancedSettings
     })
 
     setState(prev => ({ ...prev, isLoading: true, error: null, result: null }))
@@ -133,6 +159,21 @@ const AdvancedTransform: React.FC = () => {
         sourceFormat: state.sourceFormat!,
         targetFormat: state.targetFormat!,
         mappingRules: state.fieldMappings,
+        advancedOptions: {
+          transformationRules: state.advancedSettings.transformationRules,
+          validationRules: state.advancedSettings.validationRules,
+          validateOnTransform: state.advancedSettings.validateOnTransform,
+          strictValidation: state.advancedSettings.strictValidation,
+          continueOnError: state.advancedSettings.continueOnError,
+          maxErrors: state.advancedSettings.maxErrors,
+          errorReporting: state.advancedSettings.errorReporting,
+          preserveNullValues: state.advancedSettings.preserveNullValues,
+          preserveEmptyStrings: state.advancedSettings.preserveEmptyStrings,
+          prettifyOutput: state.advancedSettings.prettifyOutput,
+          includeMetadata: state.advancedSettings.includeMetadata,
+          batchSize: state.advancedSettings.batchSize,
+          enableParallelProcessing: state.advancedSettings.enableParallelProcessing,
+        },
       })
 
       console.log('Transformation successful:', response)
@@ -164,6 +205,28 @@ const AdvancedTransform: React.FC = () => {
       error: null,
       isLoading: false,
       fieldMappings: [],
+      advancedSettings: {
+        transformationRules: [],
+        validationRules: [],
+        validateOnTransform: true,
+        strictValidation: false,
+        batchSize: 1000,
+        maxMemoryUsage: 512,
+        enableParallelProcessing: true,
+        preserveNullValues: false,
+        preserveEmptyStrings: true,
+        prettifyOutput: true,
+        includeMetadata: false,
+        continueOnError: true,
+        maxErrors: 100,
+        errorReporting: 'summary',
+        enableCustomFunctions: false,
+        enableConditionalMapping: true,
+        enableDataAugmentation: false,
+        sanitizeInput: true,
+        enableDataMasking: false,
+        maskingPatterns: ['email', 'phone', 'ssn'],
+      },
     })
   }
 
@@ -181,6 +244,13 @@ const AdvancedTransform: React.FC = () => {
     console.log('Preview mappings:', mappings)
   }
 
+  const handleAdvancedSettingsChange = (settings: AdvancedSettings) => {
+    setState(prev => ({
+      ...prev,
+      advancedSettings: settings,
+    }))
+  }
+
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: 'grey.50' }}>
       <Container maxWidth={false} disableGutters sx={{ px: 3, py: 4 }}>
@@ -194,12 +264,13 @@ const AdvancedTransform: React.FC = () => {
           </Typography>
         </Box>
 
-        {/* Two Panel Layout */}
-        <Box display="grid" gridTemplateColumns={{ xs: '1fr', lg: '320px 1fr' }} gap={3}>
-          {/* Left Panel - Configuration */}
-          <Box>
+        {/* Single Column Layout */}
+        <Box display="flex" flexDirection="column" gap={3}>
+          
+          {/* Format Selection and File Upload Section */}
+          <Box display="grid" gridTemplateColumns={{ xs: '1fr', md: '1fr 1fr' }} gap={3}>
             {/* Format Selection */}
-            <Paper sx={{ p: 3, mb: 3 }}>
+            <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Format Selection
               </Typography>
@@ -221,92 +292,42 @@ const AdvancedTransform: React.FC = () => {
               </Box>
             </Paper>
 
-          {/* File Upload */}
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <FileUpload
-              onFileUpload={handleFileUpload}
-              onFileRemove={handleFileRemove}
-              uploadedFile={state.sourceData}
-              fileName={state.fileName}
-              disabled={state.isLoading}
-            />
-            
-            {/* Sample Data Section */}
-            <Box mt={3}>
-              <Divider sx={{ mb: 2 }} />
-              <Typography variant="subtitle2" gutterBottom>
-                Or try with sample data:
-              </Typography>
-              <Box display="flex" gap={1} flexWrap="wrap">
-                {SUPPORTED_FORMATS.map(format => (
-                  <Button
-                    key={format}
-                    size="small"
-                    variant="outlined"
-                    onClick={() => handleLoadSampleData(format)}
-                    disabled={state.isLoading}
-                  >
-                    {format} Sample
-                  </Button>
-                ))}
+            {/* File Upload */}
+            <Paper sx={{ p: 3 }}>
+              <FileUpload
+                onFileUpload={handleFileUpload}
+                onFileRemove={handleFileRemove}
+                uploadedFile={state.sourceData}
+                fileName={state.fileName}
+                disabled={state.isLoading}
+              />
+              
+              {/* Sample Data Section */}
+              <Box mt={3}>
+                <Divider sx={{ mb: 2 }} />
+                <Typography variant="subtitle2" gutterBottom>
+                  Or try with sample data:
+                </Typography>
+                <Box display="flex" gap={1} flexWrap="wrap">
+                  {SUPPORTED_FORMATS.map(format => (
+                    <Button
+                      key={format}
+                      size="small"
+                      variant="outlined"
+                      onClick={() => handleLoadSampleData(format)}
+                      disabled={state.isLoading}
+                    >
+                      {format} Sample
+                    </Button>
+                  ))}
+                </Box>
               </Box>
-            </Box>
-          </Paper>
+            </Paper>
+          </Box>
 
-          {/* Status Display */}
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Status
-            </Typography>
-            <Box display="flex" flexDirection="column" gap={1}>
-              {!state.sourceFormat && (
-                <Chip
-                  label="Select a source format to begin"
-                  color="default"
-                  variant="outlined"
-                  size="small"
-                />
-              )}
-              {state.sourceFormat && !state.targetFormat && (
-                <Chip
-                  label="Select a target format"
-                  color="primary"
-                  variant="outlined"
-                  size="small"
-                />
-              )}
-              {state.sourceFormat && state.targetFormat && !state.sourceData && (
-                <Chip
-                  label="Upload a file or load sample data"
-                  color="secondary"
-                  variant="outlined"
-                  size="small"
-                />
-              )}
-              {state.sourceFormat && state.targetFormat && state.sourceData && state.fieldMappings.length === 0 && (
-                <Chip
-                  label="Configure field mappings for transformation"
-                  color="warning"
-                  variant="filled"
-                  size="small"
-                />
-              )}
-              {canTransformAdvanced && !state.result && (
-                <Chip
-                  label={`Ready for transformation with ${state.fieldMappings.length} field mappings`}
-                  color="success"
-                  variant="filled"
-                  size="small"
-                />
-              )}
-            </Box>
-          </Paper>
-        </Box>
-
-        {/* Right Panel - Field Mapping Interface */}
-        <Box>
+          {/* Field Mapping Interface */}
           {state.sourceData && state.sourceFormat && state.targetFormat ? (
-            <Paper sx={{ p: 3, mb: 3 }}>
+            <Paper sx={{ p: 3 }}>
               <FieldMappingInterface
                 sourceFormat={state.sourceFormat}
                 targetFormat={state.targetFormat}
@@ -317,7 +338,7 @@ const AdvancedTransform: React.FC = () => {
               />
             </Paper>
           ) : (
-            <Paper sx={{ p: 3, mb: 3, textAlign: 'center' }}>
+            <Paper sx={{ p: 3, textAlign: 'center' }}>
               <Box py={8}>
                 <AdvancedIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
                 <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -330,9 +351,16 @@ const AdvancedTransform: React.FC = () => {
             </Paper>
           )}
 
+          {/* Advanced Options */}
+          <AdvancedOptions
+            settings={state.advancedSettings}
+            onSettingsChange={handleAdvancedSettingsChange}
+            disabled={state.isLoading}
+          />
+
           {/* Transform Controls */}
           {state.sourceData && state.sourceFormat && state.targetFormat && (
-            <Paper sx={{ p: 3, mb: 3 }}>
+            <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Transform
               </Typography>
@@ -398,15 +426,14 @@ const AdvancedTransform: React.FC = () => {
               onClear={handleClearResult}
             />
           )}
-        </Box>
-      </Box>
 
-      {/* Error Display */}
-      {state.error && (
-        <Alert severity="error" sx={{ mt: 3 }}>
-          {state.error}
-        </Alert>
-      )}
+          {/* Error Display */}
+          {state.error && (
+            <Alert severity="error" sx={{ mt: 3 }}>
+              {state.error}
+            </Alert>
+          )}
+        </Box>
       </Container>
     </Box>
   )

@@ -1,45 +1,47 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
   Box,
-  Paper,
   Typography,
+  Paper,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   Button,
-  TextField,
-  Card,
-  CardContent,
-  IconButton,
   Chip,
-  Alert,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  IconButton,
   Snackbar,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Switch,
-  FormControlLabel,
+  Alert,
 } from '@mui/material'
 import {
-  Add as AddIcon,
+  DataObject as DataObjectIcon,
+  Link as LinkIcon,
   Delete as DeleteIcon,
-  DragIndicator as DragIcon,
-  Visibility as PreviewIcon,
-  Save as SaveIcon,
+  AutoFixHigh as AutoFixHighIcon,
+  Clear as ClearIcon,
+  Preview as PreviewIcon,
   Transform as TransformIcon,
-  AccountTree as MappingIcon,
-  Settings as SettingsIcon,
-  AutoFixHigh as AutoMapIcon,
-  ExpandMore as ExpandMoreIcon,
-  ArrowForward as ArrowIcon,
+  DragIndicator as DragIndicatorIcon,
 } from '@mui/icons-material'
-import { styled } from '@mui/material/styles'
 import type { FormatType, FieldMapping } from '../services/api'
+
+interface SourceField {
+  name: string
+  type: string
+  sample?: string
+  path: string
+}
+
+interface TargetField {
+  name: string
+  type: string
+  required?: boolean
+  description?: string
+}
 
 interface FieldMappingInterfaceProps {
   sourceFormat: FormatType | null
@@ -50,83 +52,19 @@ interface FieldMappingInterfaceProps {
   disabled?: boolean
 }
 
-interface SourceField {
-  name: string
-  type: string
-  sample?: string
-  path?: string
-}
-
-interface TargetField {
-  name: string
-  type: string
-  required?: boolean
-  description?: string
-  defaultValue?: string
-}
-
-interface MappingRule extends FieldMapping {
-  id: string
-  validated?: boolean
-  transformFunction?: string
-}
-
-const MappingContainer = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  marginBottom: theme.spacing(2),
-}))
-
-const FieldCard = styled(Card)(({ theme }) => ({
-  marginBottom: theme.spacing(1),
-  cursor: 'grab',
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-  },
-  '&.dragging': {
-    opacity: 0.5,
-  },
-}))
-
-const MappingRule = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(1),
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(1),
-  marginBottom: theme.spacing(1),
-  backgroundColor: theme.palette.background.paper,
-}))
-
-const DropZone = styled(Box)(({ theme }) => ({
-  minHeight: 60,
-  border: `2px dashed ${theme.palette.divider}`,
-  borderRadius: theme.spacing(1),
-  padding: theme.spacing(2),
-  textAlign: 'center',
-  backgroundColor: theme.palette.grey[50],
-  transition: 'all 0.2s ease',
-  '&.drag-over': {
-    borderColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.primary.light + '20',
-  },
-}))
-
 const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
   sourceFormat,
   targetFormat,
   sourceData,
   onMappingChange,
   onPreview,
-  disabled = false,
 }) => {
   const [sourceFields, setSourceFields] = useState<SourceField[]>([])
   const [targetFields, setTargetFields] = useState<TargetField[]>([])
-  const [mappings, setMappings] = useState<MappingRule[]>([])
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
+  const [mappings, setMappings] = useState<FieldMapping[]>([])
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false)
-  const [configurationName, setConfigurationName] = useState('')
-  const [autoDetectTypes, setAutoDetectTypes] = useState(true)
-  const [selectedSourceField, setSelectedSourceField] = useState<SourceField | null>(null)
+  const [hoveredTargetField, setHoveredTargetField] = useState<string | null>(null)
+  const [draggedField, setDraggedField] = useState<SourceField | null>(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info')
@@ -235,7 +173,7 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
     
     return headers.map((header, index) => ({
       name: header,
-      type: autoDetectTypes ? detectDataType(sampleRow?.[index] || '') : 'string',
+      type: detectDataType(sampleRow?.[index] || ''),
       sample: sampleRow?.[index]?.substring(0, 50),
       path: header,
     }))
@@ -252,95 +190,164 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
         path: 'line',
       },
       {
-        name: 'lineNumber',
-        type: 'number',
-        sample: '1',
-        path: 'lineNumber',
-      },
+        name: 'content',
+        type: 'string',
+        sample: txtData.substring(0, 50),
+        path: 'content',
+      }
     ]
   }
 
-  // Auto-detect data type
+  // Detect data type from sample value
   const detectDataType = (value: string): string => {
-    if (!value) return 'string'
-    if (!isNaN(Number(value))) return 'number'
-    if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') return 'boolean'
-    if (Date.parse(value)) return 'date'
+    if (!value || value.trim() === '') return 'string'
+    
+    // Check for number
+    if (!isNaN(Number(value))) {
+      return value.includes('.') ? 'number' : 'integer'
+    }
+    
+    // Check for boolean
+    if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
+      return 'boolean'
+    }
+    
+    // Check for date
+    if (!isNaN(Date.parse(value))) {
+      return 'date'
+    }
+    
     return 'string'
   }
 
-  // Generate default target fields based on target format
-  const generateTargetFields = (format: FormatType): TargetField[] => {
+  // Get target fields based on format
+  const getTargetFields = useCallback((format: FormatType): TargetField[] => {
     switch (format) {
       case 'JSON':
         return [
-          { name: 'id', type: 'string', description: 'Unique identifier' },
-          { name: 'name', type: 'string', description: 'Display name' },
+          { name: 'id', type: 'string', required: true, description: 'Unique identifier' },
+          { name: 'name', type: 'string', required: true, description: 'Display name' },
           { name: 'value', type: 'string', description: 'Main value' },
-          { name: 'metadata', type: 'object', description: 'Additional information' },
+          { name: 'type', type: 'string', description: 'Data type' },
+          { name: 'timestamp', type: 'date', description: 'Creation timestamp' },
+          { name: 'metadata', type: 'object', description: 'Additional metadata' },
         ]
       case 'XML':
         return [
-          { name: 'root', type: 'object', description: 'Root element' },
-          { name: 'item', type: 'object', description: 'Item element' },
-          { name: 'name', type: 'string', description: 'Name element' },
-          { name: 'value', type: 'string', description: 'Value element' },
+          { name: 'root', type: 'element', required: true, description: 'Root element' },
+          { name: 'item', type: 'element', description: 'Item element' },
+          { name: 'value', type: 'text', description: 'Text content' },
+          { name: 'attribute', type: 'attribute', description: 'XML attribute' },
         ]
       case 'CSV':
         return [
-          { name: 'Column1', type: 'string', description: 'First column' },
-          { name: 'Column2', type: 'string', description: 'Second column' },
-          { name: 'Column3', type: 'string', description: 'Third column' },
+          { name: 'column1', type: 'string', description: 'First column' },
+          { name: 'column2', type: 'string', description: 'Second column' },
+          { name: 'column3', type: 'string', description: 'Third column' },
+          { name: 'column4', type: 'string', description: 'Fourth column' },
         ]
       case 'TXT':
         return [
-          { name: 'output', type: 'string', description: 'Output text' },
+          { name: 'line', type: 'string', description: 'Single line' },
+          { name: 'paragraph', type: 'string', description: 'Text paragraph' },
         ]
       default:
         return []
     }
-  }
+  }, [])
 
   // Update fields when data changes
   useEffect(() => {
     if (sourceData && sourceFormat) {
       const fields = extractSourceFields(sourceData, sourceFormat)
       setSourceFields(fields)
+    } else {
+      setSourceFields([])
     }
   }, [sourceData, sourceFormat, extractSourceFields])
 
   useEffect(() => {
     if (targetFormat) {
-      const fields = generateTargetFields(targetFormat)
+      const fields = getTargetFields(targetFormat)
       setTargetFields(fields)
+    } else {
+      setTargetFields([])
     }
-  }, [targetFormat])
+  }, [targetFormat, getTargetFields])
 
   // Handle field mapping
   const addMapping = (sourceField: SourceField, targetField: TargetField) => {
-    const newMapping: MappingRule = {
-      id: `${Date.now()}-${Math.random()}`,
-      sourceField: sourceField.name,
-      targetField: targetField.name,
-      validated: true,
+    // Check if mapping already exists
+    const existingMapping = mappings.find(m => 
+      m.sourceField === sourceField.name && m.targetField === targetField.name
+    )
+    
+    if (existingMapping) {
+      setSnackbarMessage(`Mapping already exists: ${sourceField.name} → ${targetField.name}`)
+      setSnackbarSeverity('warning')
+      setSnackbarOpen(true)
+      return
     }
     
-    setMappings(prev => [...prev, newMapping])
-    onMappingChange([...mappings, newMapping])
-  }
-
-  const removeMapping = (id: string) => {
-    const newMappings = mappings.filter(m => m.id !== id)
+    const newMapping: FieldMapping = {
+      sourceField: sourceField.name,
+      targetField: targetField.name,
+      transformationRule: undefined,
+    }
+    
+    const newMappings = [...mappings, newMapping]
     setMappings(newMappings)
     onMappingChange(newMappings)
+    
+    setSnackbarMessage(`Created mapping: ${sourceField.name} → ${targetField.name}`)
+    setSnackbarSeverity('success')
+    setSnackbarOpen(true)
   }
 
-  // Auto-mapping based on field names
-  const autoMap = () => {
-    console.log('AutoMap started')
-    console.log('Source fields:', sourceFields.map(f => f.name))
-    console.log('Target fields:', targetFields.map(f => f.name))
+  const removeMapping = (sourceField: string, targetField: string) => {
+    const newMappings = mappings.filter(m => 
+      !(m.sourceField === sourceField && m.targetField === targetField)
+    )
+    setMappings(newMappings)
+    onMappingChange(newMappings)
     
+    setSnackbarMessage(`Removed mapping: ${sourceField} → ${targetField}`)
+    setSnackbarSeverity('info')
+    setSnackbarOpen(true)
+  }
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, field: SourceField) => {
+    setDraggedField(field)
+    e.dataTransfer.effectAllowed = 'copy'
+    e.dataTransfer.setData('text/plain', field.name)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+  }
+
+  const handleDragEnter = (fieldName: string) => {
+    setHoveredTargetField(fieldName)
+  }
+
+  const handleDragLeave = () => {
+    setHoveredTargetField(null)
+  }
+
+  const handleDrop = (e: React.DragEvent, targetField: TargetField) => {
+    e.preventDefault()
+    setHoveredTargetField(null)
+    
+    if (draggedField) {
+      addMapping(draggedField, targetField)
+      setDraggedField(null)
+    }
+  }
+
+  // Auto-mapping functionality
+  const performAutoMapping = () => {
     if (sourceFields.length === 0) {
       setSnackbarMessage('No source fields available. Please upload data first.')
       setSnackbarSeverity('warning')
@@ -355,7 +362,7 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
       return
     }
     
-    const newMappings: MappingRule[] = []
+    const newMappings: FieldMapping[] = []
     
     sourceFields.forEach(sourceField => {
       const sourceName = sourceField.name.toLowerCase().trim()
@@ -379,7 +386,7 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
           'id': ['id', 'identifier', 'key', 'primary'],
           'name': ['name', 'title', 'label', 'description'],
           'value': ['value', 'amount', 'data', 'content'],
-          'date': ['date', 'time', 'created', 'updated']
+          'timestamp': ['date', 'time', 'created', 'updated']
         }
         
         for (const [targetKey, sourceVariants] of Object.entries(commonMappings)) {
@@ -390,543 +397,256 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
         }
       }
       
-      console.log(`Source field "${sourceField.name}":`, matchingTarget ? `matched with "${matchingTarget.name}"` : 'no match found')
-      
       if (matchingTarget) {
-        newMappings.push({
-          id: `${Date.now()}-${Math.random()}`,
-          sourceField: sourceField.name,
-          targetField: matchingTarget.name,
-          validated: true,
-        })
+        // Check if mapping already exists
+        const existingMapping = mappings.find(m => 
+          m.sourceField === sourceField.name && m.targetField === matchingTarget!.name
+        )
+        
+        if (!existingMapping) {
+          newMappings.push({
+            sourceField: sourceField.name,
+            targetField: matchingTarget.name,
+            transformationRule: undefined,
+          })
+        }
       }
     })
     
-    console.log('New mappings created:', newMappings)
-    
-    if (newMappings.length === 0) {
-      setSnackbarMessage('No automatic mappings could be created. Field names do not match common patterns.')
-      setSnackbarSeverity('warning')
-      setSnackbarOpen(true)
-    } else {
-      setSnackbarMessage(`Successfully created ${newMappings.length} automatic mapping${newMappings.length > 1 ? 's' : ''}`)
+    if (newMappings.length > 0) {
+      const allMappings = [...mappings, ...newMappings]
+      setMappings(allMappings)
+      onMappingChange(allMappings)
+      setSnackbarMessage(`Auto-mapped ${newMappings.length} field(s)`)
       setSnackbarSeverity('success')
       setSnackbarOpen(true)
+    } else {
+      setSnackbarMessage('No automatic mappings could be created')
+      setSnackbarSeverity('info')
+      setSnackbarOpen(true)
     }
-    
-    setMappings(newMappings)
-    onMappingChange(newMappings)
   }
 
-  // Add custom target field
-  const addTargetField = () => {
-    const newField: TargetField = {
-      name: `CustomField${targetFields.length + 1}`,
-      type: 'string',
-      description: 'Custom field',
-    }
-    setTargetFields(prev => [...prev, newField])
+  const clearAllMappings = () => {
+    setMappings([])
+    onMappingChange([])
+    setSnackbarMessage('All mappings cleared')
+    setSnackbarSeverity('info')
+    setSnackbarOpen(true)
   }
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Box>
-          <Typography variant="h5" gutterBottom>
-            <MappingIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-            Advanced Field Mapping
-          </Typography>
-          
-          <Typography variant="body2" color="text.secondary">
-            Map fields from your source data to the target format structure. 
-            Click a source field to select it, then click a target field to create a mapping.
-            {selectedSourceField && (
-              <Box component="span" sx={{ color: 'primary.main', fontWeight: 'medium' }}>
-                <br />
-                Selected: "{selectedSourceField.name}" - Click a target field to map it.
-              </Box>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Field Mapping Configuration
+      </Typography>
+      
+      {/* Auto-mapping controls */}
+      <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Button
+          variant="contained"
+          onClick={performAutoMapping}
+          disabled={sourceFields.length === 0 || targetFields.length === 0}
+          startIcon={<AutoFixHighIcon />}
+        >
+          Auto Map Fields
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={clearAllMappings}
+          disabled={mappings.length === 0}
+          startIcon={<ClearIcon />}
+          color="error"
+        >
+          Clear All Mappings
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={() => setPreviewDialogOpen(true)}
+          disabled={mappings.length === 0}
+          startIcon={<PreviewIcon />}
+        >
+          Preview Mappings
+        </Button>
+        <Typography variant="body2" color="text.secondary">
+          {mappings.length} field mapping(s) configured
+        </Typography>
+      </Box>
+
+      {/* Source and Target Fields Layout */}
+      <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
+        {/* Source Fields */}
+        <Box sx={{ flex: 1 }}>
+          <Paper sx={{ p: 2, height: '400px', overflow: 'auto' }}>
+            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <DataObjectIcon />
+              Source Fields ({sourceFields.length})
+            </Typography>
+            {sourceFields.length === 0 ? (
+              <Typography color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                No source fields available. Upload a file to see source fields.
+              </Typography>
+            ) : (
+              <List dense>
+                {sourceFields.map((field) => (
+                  <ListItem
+                    key={field.name}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, field)}
+                    sx={{ 
+                      cursor: 'grab',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      mb: 1,
+                      bgcolor: draggedField?.name === field.name ? 'action.selected' : 'background.paper',
+                      '&:hover': {
+                        bgcolor: 'action.hover',
+                        transform: 'translateX(4px)',
+                        transition: 'all 0.2s ease'
+                      },
+                      '&:active': {
+                        cursor: 'grabbing'
+                      }
+                    }}
+                  >
+                    <ListItemIcon>
+                      <DragIndicatorIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={field.name}
+                      secondary={field.type}
+                      secondaryTypographyProps={{ variant: 'caption' }}
+                    />
+                    <Chip
+                      size="small"
+                      label={field.type}
+                      color="primary"
+                      variant="outlined"
+                    />
+                  </ListItem>
+                ))}
+              </List>
             )}
-          </Typography>
+          </Paper>
+        </Box>
+
+        {/* Target Fields */}
+        <Box sx={{ flex: 1 }}>
+          <Paper sx={{ p: 2, height: '400px', overflow: 'auto' }}>
+            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <DataObjectIcon />
+              Target Fields ({targetFields.length})
+            </Typography>
+            {targetFields.length === 0 ? (
+              <Typography color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                No target fields available. Select a format to see target fields.
+              </Typography>
+            ) : (
+              <List dense>
+                {targetFields.map((field) => (
+                  <ListItem
+                    key={field.name}
+                    onDragOver={handleDragOver}
+                    onDragEnter={() => handleDragEnter(field.name)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, field)}
+                    sx={{ 
+                      border: '2px solid',
+                      borderColor: hoveredTargetField === field.name ? 'primary.main' : 'divider',
+                      borderRadius: 1,
+                      mb: 1,
+                      bgcolor: hoveredTargetField === field.name ? 'primary.light' : 'background.paper',
+                      transition: 'all 0.2s ease',
+                      minHeight: '56px',
+                      '&:hover': {
+                        bgcolor: 'action.hover',
+                        borderColor: 'primary.main'
+                      }
+                    }}
+                  >
+                    <ListItemIcon>
+                      <DataObjectIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {field.name}
+                          {field.required && (
+                            <Chip
+                              size="small"
+                              label="Required"
+                              color="error"
+                              variant="outlined"
+                            />
+                          )}
+                        </Box>
+                      }
+                      secondary={field.description || field.type}
+                      secondaryTypographyProps={{ variant: 'caption' }}
+                    />
+                    <Chip
+                      size="small"
+                      label={field.type}
+                      color="secondary"
+                      variant="outlined"
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Paper>
         </Box>
       </Box>
 
-      {/* Configuration Header */}
-      <MappingContainer elevation={1}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <TextField
-            size="small"
-            label="Configuration Name"
-            value={configurationName}
-            onChange={(e) => setConfigurationName(e.target.value)}
-            sx={{ minWidth: 200 }}
-          />
-          <Box display="flex" gap={1}>
-            <Button
-              startIcon={<AutoMapIcon />}
-              onClick={autoMap}
-              variant="outlined"
-              size="small"
-              disabled={disabled || sourceFields.length === 0}
-            >
-              Auto Map
-            </Button>
-            <Button
-              startIcon={<PreviewIcon />}
-              onClick={() => setPreviewDialogOpen(true)}
-              variant="outlined"
-              size="small"
-              disabled={disabled || mappings.length === 0}
-            >
-              Preview
-            </Button>
-            <Button
-              startIcon={<SaveIcon />}
-              variant="outlined"
-              size="small"
-              disabled={disabled || !configurationName}
-            >
-              Save Config
-            </Button>
-          </Box>
-        </Box>
-
-        <FormControlLabel
-          control={
-            <Switch
-              checked={autoDetectTypes}
-              onChange={(e) => setAutoDetectTypes(e.target.checked)}
-            />
-          }
-          label="Auto-detect field types"
-        />
-      </MappingContainer>
-
-      {/* Single Unified Mapping Panel */}
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          <MappingIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-          Field Mapping Configuration
+      {/* Field Mappings Section - Below Source and Target Fields */}
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <LinkIcon />
+          Field Mappings ({mappings.length})
         </Typography>
         
-        {sourceFields.length === 0 || targetFields.length === 0 ? (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            {!sourceData ? 'Upload source data to detect fields.' : 
-             sourceFields.length === 0 ? 'No source fields detected. Try uploading a different file.' :
-             'Select a target format to see available target fields.'}
-          </Alert>
+        {mappings.length === 0 ? (
+          <Paper sx={{ p: 3, textAlign: 'center' }}>
+            <Typography color="text.secondary" sx={{ fontStyle: 'italic' }}>
+              No field mappings configured. Drag source fields to target fields or use Auto Map.
+            </Typography>
+          </Paper>
         ) : (
-          <Box>
-            {/* Field Mapping Interface */}
-            <Box display="flex" gap={3} sx={{ flexDirection: { xs: 'column', md: 'row' } }}>
-              {/* Source Fields Column */}
-              <Box flex={1}>
-                <Box>
-                  <Typography variant="subtitle1" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>
-                    Source Fields ({sourceFormat})
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {sourceFields.length} fields detected
-                  </Typography>
-                  
-                  <Box sx={{ maxHeight: 400, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
-                    {sourceFields.map((field, index) => {
-                      const isSelected = selectedSourceField?.name === field.name
-                      const mappedTargets = mappings.filter(m => m.sourceField === field.name)
-                      const isAlreadyMapped = mappedTargets.length > 0
-                      
-                      return (
-                        <FieldCard 
-                          key={index} 
-                          variant="outlined"
-                          onClick={() => setSelectedSourceField(isSelected ? null : field)}
-                          sx={{ 
-                            cursor: 'pointer',
-                            bgcolor: isSelected ? 'primary.light' : 'inherit',
-                            borderColor: isSelected ? 'primary.main' : 'divider',
-                            position: 'relative',
-                            mb: 1,
-                            '&:hover': { 
-                              bgcolor: isSelected ? 'primary.main' : 'action.hover',
-                              borderColor: isSelected ? 'primary.main' : 'divider'
-                            }
-                          }}
-                        >
-                          {/* Connection Indicator */}
-                          {isAlreadyMapped && (
-                            <Box
-                              sx={{
-                                position: 'absolute',
-                                right: -6,
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                width: 12,
-                                height: 12,
-                                borderRadius: '50%',
-                                bgcolor: 'grey.400',
-                                border: '2px solid white',
-                                boxShadow: 1,
-                                zIndex: 1,
-                              }}
-                            />
-                          )}
-
-                          <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                            <Box display="flex" alignItems="center" justifyContent="space-between">
-                              <Box flex={1}>
-                                <Typography variant="subtitle2" noWrap>
-                                  {field.name}
-                                  {isSelected && (
-                                    <Chip
-                                      label="Selected"
-                                      size="small"
-                                      color="primary"
-                                      variant="filled"
-                                      sx={{ ml: 1 }}
-                                    />
-                                  )}
-                                </Typography>
-                                <Box display="flex" gap={1} alignItems="center" mt={0.5}>
-                                  <Chip
-                                    label={field.type}
-                                    size="small"
-                                    variant="outlined"
-                                    color="default"
-                                  />
-                                  {field.sample && (
-                                    <Typography
-                                      variant="caption"
-                                      color="text.secondary"
-                                      sx={{ 
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                        maxWidth: 100
-                                      }}
-                                    >
-                                      "{field.sample}"
-                                    </Typography>
-                                  )}
-                                </Box>
-                                {/* Show mapped targets */}
-                                {mappedTargets.length > 0 && (
-                                  <Box mt={0.5}>
-                                    {mappedTargets.map((mapping, idx) => (
-                                      <Chip
-                                        key={idx}
-                                        label={`→ ${mapping.targetField}`}
-                                        size="small"
-                                        variant="outlined"
-                                        color="default"
-                                        sx={{ mr: 0.5, mb: 0.5, fontSize: '0.7rem' }}
-                                      />
-                                    ))}
-                                  </Box>
-                                )}
-                              </Box>
-                              <Box display="flex" alignItems="center">
-                                <Typography
-                                  variant="caption"
-                                  color={isAlreadyMapped ? 'text.primary' : 'text.disabled'}
-                                  sx={{ mr: 1 }}
-                                >
-                                  {mappedTargets.length}
-                                </Typography>
-                                <DragIcon color="action" />
-                              </Box>
-                            </Box>
-                          </CardContent>
-                        </FieldCard>
-                      )
-                    })}
-                  </Box>
-                </Box>
-              </Box>
-
-              {/* Mapping Rules Column */}
-              <Box flex={1}>
-                <Box>
-                  <Typography variant="subtitle1" gutterBottom color="secondary" sx={{ fontWeight: 'bold' }}>
-                    Field Mappings
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {mappings.length} mapping{mappings.length !== 1 ? 's' : ''} configured
-                  </Typography>
-                  
-                  {mappings.length === 0 ? (
-                    <DropZone sx={{ minHeight: 200, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                      <Typography color="text.secondary" variant="body2" textAlign="center">
-                        No mappings created yet.
-                        <br />
-                        {selectedSourceField ? 
-                          `Click a target field to map "${selectedSourceField.name}"` :
-                          'Select a source field first, then click a target field'
-                        }
-                      </Typography>
-                    </DropZone>
-                  ) : (
-                    <Box sx={{ maxHeight: 400, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
-                      {mappings.map((mapping) => (
-                        <Box
-                          key={mapping.id}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            p: 1.5,
-                            mb: 1,
-                            bgcolor: 'action.hover',
-                            borderRadius: 1,
-                            border: '1px solid',
-                            borderColor: 'divider',
-                          }}
-                        >
-                          {/* Source Field */}
-                          <Box
-                            sx={{
-                              flex: 1,
-                              p: 1,
-                              borderRadius: 1,
-                              bgcolor: 'primary.light',
-                              color: 'primary.contrastText',
-                              textAlign: 'center',
-                            }}
-                          >
-                            <Typography variant="body2" fontWeight="medium" noWrap>
-                              {mapping.sourceField}
-                            </Typography>
-                          </Box>
-
-                          {/* Arrow */}
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              mx: 1,
-                              minWidth: 40,
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                width: 20,
-                                height: 2,
-                                bgcolor: 'primary.main',
-                                borderRadius: 1,
-                              }}
-                            />
-                            <ArrowIcon
-                              sx={{
-                                color: 'primary.main',
-                                fontSize: 16,
-                                ml: -0.5,
-                              }}
-                            />
-                          </Box>
-
-                          {/* Target Field */}
-                          <Box
-                            sx={{
-                              flex: 1,
-                              p: 1,
-                              borderRadius: 1,
-                              bgcolor: 'success.light',
-                              color: 'success.contrastText',
-                              textAlign: 'center',
-                            }}
-                          >
-                            <Typography variant="body2" fontWeight="medium" noWrap>
-                              {mapping.targetField}
-                            </Typography>
-                          </Box>
-
-                          {/* Transformation Rule Badge */}
-                          {mapping.transformationRule && (
-                            <Chip
-                              label={mapping.transformationRule}
-                              size="small"
-                              color="warning"
-                              variant="outlined"
-                              sx={{ ml: 1 }}
-                            />
-                          )}
-
-                          {/* Delete Button */}
-                          <IconButton
-                            size="small"
-                            onClick={() => removeMapping(mapping.id)}
-                            disabled={disabled}
-                            sx={{ ml: 1 }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
-                      ))}
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-
-              {/* Target Fields Column */}
-              <Box flex={1}>
-                <Box>
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                    <Typography variant="subtitle1" color="success.main" sx={{ fontWeight: 'bold' }}>
-                      Target Fields ({targetFormat})
-                    </Typography>
-                    <IconButton
+          <Paper sx={{ p: 2 }}>
+            <List>
+              {mappings.map((mapping, index) => (
+                <ListItem key={`${mapping.sourceField}-${mapping.targetField}-${index}`} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, mb: 1 }}>
+                  <ListItemIcon>
+                    <LinkIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={`${mapping.sourceField} → ${mapping.targetField}`}
+                    secondary={mapping.transformationRule || 'Direct mapping'}
+                    primaryTypographyProps={{ fontWeight: 'medium' }}
+                  />
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <Chip
                       size="small"
-                      onClick={addTargetField}
-                      disabled={disabled}
-                      title="Add custom field"
+                      label="Active"
+                      color="success"
+                      variant="outlined"
+                    />
+                    <IconButton
+                      edge="end"
+                      onClick={() => removeMapping(mapping.sourceField, mapping.targetField)}
+                      color="error"
+                      size="small"
                     >
-                      <AddIcon />
+                      <DeleteIcon />
                     </IconButton>
                   </Box>
-                  
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {targetFields.length} fields available
-                  </Typography>
-                  
-                  <Box sx={{ maxHeight: 400, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
-                    {targetFields.map((field, index) => {
-                      const mappedSources = mappings.filter(m => m.targetField === field.name)
-                      const isAlreadyMapped = mappedSources.length > 0
-                      const canMap = selectedSourceField && !disabled
-                      
-                      return (
-                        <FieldCard 
-                          key={index} 
-                          variant="outlined"
-                          onClick={() => {
-                            if (selectedSourceField) {
-                              addMapping(selectedSourceField, field)
-                              setSelectedSourceField(null)
-                            }
-                          }}
-                          sx={{ 
-                            cursor: canMap ? 'pointer' : 'default',
-                            bgcolor: 'inherit',
-                            borderColor: 'divider',
-                            position: 'relative',
-                            mb: 1,
-                            '&:hover': { 
-                              bgcolor: canMap ? 'action.hover' : 'inherit',
-                              borderColor: canMap ? 'divider' : 'divider'
-                            }
-                          }}
-                        >
-                          {/* Connection Indicator */}
-                          {isAlreadyMapped && (
-                            <Box
-                              sx={{
-                                position: 'absolute',
-                                left: -6,
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                width: 12,
-                                height: 12,
-                                borderRadius: '50%',
-                                bgcolor: 'grey.400',
-                                border: '2px solid white',
-                                boxShadow: 1,
-                                zIndex: 1,
-                              }}
-                            />
-                          )}
-
-                          <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                            <Box display="flex" alignItems="center" justifyContent="space-between">
-                              <Box display="flex" alignItems="center">
-                                <DragIcon color="action" />
-                                <Typography
-                                  variant="caption"
-                                  color={isAlreadyMapped ? 'text.primary' : 'text.disabled'}
-                                  sx={{ mr: 1 }}
-                                >
-                                  {mappedSources.length}
-                                </Typography>
-                              </Box>
-                              <Box flex={1} textAlign="right">
-                                <Typography variant="subtitle2" noWrap>
-                                  {field.name}
-                                  {field.required && (
-                                    <Chip
-                                      label="Required"
-                                      size="small"
-                                      color="error"
-                                      variant="outlined"
-                                      sx={{ ml: 1 }}
-                                    />
-                                  )}
-                                </Typography>
-                                <Box display="flex" gap={1} alignItems="center" justifyContent="flex-end" mt={0.5}>
-                                  <Chip
-                                    label={field.type}
-                                    size="small"
-                                    variant="outlined"
-                                    color="default"
-                                  />
-                                  {field.description && (
-                                    <Typography
-                                      variant="caption"
-                                      color="text.secondary"
-                                      sx={{ 
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                        maxWidth: 100
-                                      }}
-                                    >
-                                      {field.description}
-                                    </Typography>
-                                  )}
-                                </Box>
-                                {/* Show mapped sources */}
-                                {mappedSources.length > 0 && (
-                                  <Box mt={0.5} textAlign="right">
-                                    {mappedSources.map((mapping, idx) => (
-                                      <Chip
-                                        key={idx}
-                                        label={`${mapping.sourceField} →`}
-                                        size="small"
-                                        variant="outlined"
-                                        color="default"
-                                        sx={{ mr: 0.5, mb: 0.5, fontSize: '0.7rem' }}
-                                      />
-                                    ))}
-                                  </Box>
-                                )}
-                              </Box>
-                            </Box>
-                          </CardContent>
-                        </FieldCard>
-                      )
-                    })}
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-          </Box>
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
         )}
-      </Paper>
-
-      {/* Advanced Options */}
-      <Accordion 
-        expanded={showAdvancedOptions} 
-        onChange={() => setShowAdvancedOptions(!showAdvancedOptions)}
-        sx={{ mt: 2 }}
-      >
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>
-            <SettingsIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-            Advanced Options
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="body2" color="text.secondary">
-            Configure transformation rules, validation, and other advanced settings.
-          </Typography>
-          {/* Add advanced options here */}
-        </AccordionDetails>
-      </Accordion>
+      </Box>
 
       {/* Preview Dialog */}
       <Dialog
@@ -941,8 +661,8 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
             Preview of field mappings for {sourceFormat} → {targetFormat} transformation:
           </Typography>
           <List>
-            {mappings.map((mapping) => (
-              <ListItem key={mapping.id}>
+            {mappings.map((mapping, index) => (
+              <ListItem key={`${mapping.sourceField}-${mapping.targetField}-${index}`}>
                 <ListItemIcon>
                   <TransformIcon color="primary" />
                 </ListItemIcon>
@@ -970,17 +690,16 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for notifications */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={4000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert 
-          onClose={() => setSnackbarOpen(false)} 
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
           severity={snackbarSeverity}
-          sx={{ width: '100%' }}
+          variant="filled"
         >
           {snackbarMessage}
         </Alert>
