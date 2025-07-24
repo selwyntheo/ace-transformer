@@ -1,4 +1,4 @@
-package com.acetransformer.universaldatatransformer.model;
+package com.bny.ace.transformer.model;
 
 /**
  * Enumeration of supported data formats for transformation.

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from '../../App'
 import { TransformationService } from '../../services/api'
@@ -55,12 +55,12 @@ describe('App Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockTransform.mockResolvedValue({
-      transformedData: '{"transformed": "data"}',
+      outputData: '{"transformed": "data"}',
       success: true,
       processingTimeMs: 100
     })
     mockAdvancedTransform.mockResolvedValue({
-      transformedData: '{"advanced": "transformation"}',
+      outputData: '{"advanced": "transformation"}',
       success: true,
       processingTimeMs: 150
     })

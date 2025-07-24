@@ -8,7 +8,6 @@ import {
   Paper,
   Typography,
   Divider,
-  Stack,
 } from '@mui/material'
 import {
   Transform as TransformIcon,
@@ -106,7 +105,7 @@ const QuickTransform: React.FC = () => {
 
       setState(prev => ({
         ...prev,
-        result: response.transformedData,
+        result: response.outputData,
         processingTime: response.processingTimeMs,
         isLoading: false,
       }))

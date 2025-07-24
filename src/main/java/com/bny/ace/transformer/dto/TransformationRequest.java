@@ -1,6 +1,6 @@
-package com.acetransformer.universaldatatransformer.dto;
+package com.bny.ace.transformer.dto;
 
-import com.acetransformer.universaldatatransformer.model.DataFormat;
+import com.bny.ace.transformer.model.DataFormat;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
 

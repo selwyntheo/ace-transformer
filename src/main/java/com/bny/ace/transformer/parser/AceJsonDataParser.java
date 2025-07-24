@@ -1,4 +1,4 @@
-package com.acetransformer.universaldatatransformer.parser;
+package com.bny.ace.transformer.parser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * JSON data parser implementation.
+ * JSON data parser implementation for Ace Transformer.
  */
 @Component
-public class JsonDataParser implements DataParser {
+public class AceJsonDataParser implements DataParser {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 

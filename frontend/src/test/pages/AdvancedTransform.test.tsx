@@ -66,12 +66,12 @@ describe('AdvancedTransform', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockTransform.mockResolvedValue({
-      transformedData: '{"result": "success"}',
+      outputData: '{"result": "success"}',
       success: true,
       processingTimeMs: 100
     })
     mockAdvancedTransform.mockResolvedValue({
-      transformedData: '{"advanced": "result"}',
+      outputData: '{"advanced": "result"}',
       success: true,
       processingTimeMs: 150
     })

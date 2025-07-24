@@ -29,7 +29,7 @@ describe('QuickTransform Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockTransform.mockResolvedValue({
-      transformedData: '{"name":"John","age":30}',
+      outputData: '{"name":"John","age":30}',
       success: true,
       processingTimeMs: 100
     })

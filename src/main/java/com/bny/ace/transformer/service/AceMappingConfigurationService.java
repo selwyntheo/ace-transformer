@@ -1,6 +1,6 @@
-package com.acetransformer.universaldatatransformer.service;
+package com.bny.ace.transformer.service;
 
-import com.acetransformer.universaldatatransformer.model.MappingConfiguration;
+import com.bny.ace.transformer.model.MappingConfiguration;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.Optional;
  * this would use JPA repositories for database persistence.
  */
 @Service
-public class MappingConfigurationService {
+public class AceMappingConfigurationService {
 
     // Simple in-memory storage for demonstration
     private List<MappingConfiguration> configurations = new ArrayList<>();

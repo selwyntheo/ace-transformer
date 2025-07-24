@@ -1,4 +1,4 @@
-package com.acetransformer.universaldatatransformer.dto;
+package com.bny.ace.transformer.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

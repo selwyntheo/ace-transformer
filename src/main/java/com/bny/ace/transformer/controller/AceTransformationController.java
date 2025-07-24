@@ -1,9 +1,9 @@
-package com.acetransformer.universaldatatransformer.controller;
+package com.bny.ace.transformer.controller;
 
-import com.acetransformer.universaldatatransformer.dto.TransformationRequest;
-import com.acetransformer.universaldatatransformer.dto.AdvancedTransformationRequest;
-import com.acetransformer.universaldatatransformer.dto.TransformationResponse;
-import com.acetransformer.universaldatatransformer.service.UniversalTransformationService;
+import com.bny.ace.transformer.dto.TransformationRequest;
+import com.bny.ace.transformer.dto.AdvancedTransformationRequest;
+import com.bny.ace.transformer.dto.TransformationResponse;
+import com.bny.ace.transformer.service.AceTransformationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 /**
- * REST Controller for data transformation operations.
+ * REST Controller for Ace data transformation operations.
  */
 @RestController
 @RequestMapping("/api/transform")
 @CrossOrigin(origins = "*")
-public class TransformationController {
+public class AceTransformationController {
 
     @Autowired
-    private UniversalTransformationService transformationService;
+    private AceTransformationService transformationService;
 
     /**
      * Transform data from one format to another.

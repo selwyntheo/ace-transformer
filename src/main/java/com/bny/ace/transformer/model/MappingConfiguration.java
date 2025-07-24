@@ -1,4 +1,4 @@
-package com.acetransformer.universaldatatransformer.model;
+package com.bny.ace.transformer.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

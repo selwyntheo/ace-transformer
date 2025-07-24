@@ -1,12 +1,12 @@
-package com.acetransformer.universaldatatransformer.service;
+package com.bny.ace.transformer.service;
 
-import com.acetransformer.universaldatatransformer.dto.TransformationRequest;
-import com.acetransformer.universaldatatransformer.dto.AdvancedTransformationRequest;
-import com.acetransformer.universaldatatransformer.dto.FieldMappingRequest;
-import com.acetransformer.universaldatatransformer.dto.TransformationResponse;
-import com.acetransformer.universaldatatransformer.model.DataFormat;
-import com.acetransformer.universaldatatransformer.model.MappingConfiguration;
-import com.acetransformer.universaldatatransformer.parser.JsonDataParser;
+import com.bny.ace.transformer.dto.TransformationRequest;
+import com.bny.ace.transformer.dto.AdvancedTransformationRequest;
+import com.bny.ace.transformer.dto.FieldMappingRequest;
+import com.bny.ace.transformer.dto.TransformationResponse;
+import com.bny.ace.transformer.model.DataFormat;
+import com.bny.ace.transformer.model.MappingConfiguration;
+import com.bny.ace.transformer.parser.AceJsonDataParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +14,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Main service for universal data transformation.
+ * Main service for ace data transformation.
  */
 @Service
-public class UniversalTransformationService {
+public class AceTransformationService {
 
     @Autowired
-    private JsonDataParser jsonDataParser;
+    private AceJsonDataParser jsonDataParser;
 
     @Autowired
-    private MappingConfigurationService mappingConfigurationService;
+    private AceMappingConfigurationService mappingConfigurationService;
 
     /**
      * Transform data from one format to another.
