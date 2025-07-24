@@ -1,0 +1,99 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "profile": {
+        "age": 30,
+        "address": {
+          "street": "123 Main St",
+          "city": "New York",
+          "country": "USA"
+        },
+        "preferences": {
+          "theme": "dark",
+          "notifications": true
+        }
+      },
+      "orders": [
+        {
+          "orderId": "ORD-001",
+          "amount": 150.50,
+          "items": [
+            {
+              "name": "Product A",
+              "quantity": 2,
+              "price": 75.25
+            },
+            {
+              "name": "Product B", 
+              "quantity": 1,
+              "price": 75.25
+            }
+          ],
+          "shipping": {
+            "method": "express",
+            "cost": 10.00
+          }
+        },
+        {
+          "orderId": "ORD-002",
+          "amount": 200.00,
+          "items": [
+            {
+              "name": "Product C",
+              "quantity": 1,
+              "price": 200.00
+            }
+          ],
+          "shipping": {
+            "method": "standard",
+            "cost": 5.00
+          }
+        }
+      ],
+      "tags": ["premium", "vip", "loyal"]
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "email": "jane@example.com",
+      "profile": {
+        "age": 28,
+        "address": {
+          "street": "456 Oak Ave",
+          "city": "Los Angeles",
+          "country": "USA"
+        },
+        "preferences": {
+          "theme": "light",
+          "notifications": false
+        }
+      },
+      "orders": [
+        {
+          "orderId": "ORD-003",
+          "amount": 89.99,
+          "items": [
+            {
+              "name": "Product D",
+              "quantity": 3,
+              "price": 29.99
+            }
+          ],
+          "shipping": {
+            "method": "standard",
+            "cost": 5.00
+          }
+        }
+      ],
+      "tags": ["new"]
+    }
+  ],
+  "metadata": {
+    "total": 2,
+    "lastUpdated": "2025-07-24T12:00:00Z",
+    "version": "1.0"
+  }
+}

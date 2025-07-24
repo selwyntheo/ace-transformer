@@ -143,6 +143,66 @@ public class UniversalTransformationService {
         String[] parts = fieldPath.split("\\.");
         Object current = data;
         
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            
+            if (part.contains("[]")) {
+                // Handle array notation like "users[]"
+                String arrayKey = part.replace("[]", "");
+                if (current instanceof Map) {
+                    current = ((Map<?, ?>) current).get(arrayKey);
+                    if (current instanceof java.util.List) {
+                        java.util.List<?> list = (java.util.List<?>) current;
+                        
+                        // If this is the last part, return the list
+                        if (i == parts.length - 1) {
+                            return current;
+                        }
+                        
+                        // Continue processing with remaining path on each list item
+                        java.util.List<Object> results = new java.util.ArrayList<>();
+                        String remainingPath = String.join(".", java.util.Arrays.copyOfRange(parts, i + 1, parts.length));
+                        
+                        for (Object item : list) {
+                            if (item instanceof Map) {
+                                Object value = getNestedValueFromMap((Map<?, ?>) item, remainingPath);
+                                if (value != null) {
+                                    results.add(value);
+                                }
+                            }
+                        }
+                        return results.isEmpty() ? null : results;
+                    }
+                } else {
+                    return null;
+                }
+            } else if (current instanceof Map) {
+                current = ((Map<?, ?>) current).get(part);
+            } else if (current instanceof java.util.List) {
+                // If we're trying to access a field on a list, collect from all items
+                java.util.List<?> list = (java.util.List<?>) current;
+                java.util.List<Object> results = new java.util.ArrayList<>();
+                for (Object item : list) {
+                    if (item instanceof Map) {
+                        Object value = ((Map<?, ?>) item).get(part);
+                        if (value != null) {
+                            results.add(value);
+                        }
+                    }
+                }
+                return results.isEmpty() ? null : results;
+            } else {
+                return null;
+            }
+        }
+        
+        return current;
+    }
+    
+    private Object getNestedValueFromMap(Map<?, ?> map, String fieldPath) {
+        String[] parts = fieldPath.split("\\.");
+        Object current = map;
+        
         for (String part : parts) {
             if (current instanceof Map) {
                 current = ((Map<?, ?>) current).get(part);
@@ -167,7 +227,21 @@ public class UniversalTransformationService {
             current = (Map<String, Object>) current.get(part);
         }
         
-        current.put(parts[parts.length - 1], value);
+        String finalPart = parts[parts.length - 1];
+        
+        // Handle array values - if the value is a list, we might want to process it
+        if (value instanceof java.util.List) {
+            java.util.List<?> listValue = (java.util.List<?>) value;
+            if (listValue.size() == 1) {
+                // If it's a single item list from array extraction, unwrap it
+                current.put(finalPart, listValue.get(0));
+            } else {
+                // Keep as list for multiple items
+                current.put(finalPart, value);
+            }
+        } else {
+            current.put(finalPart, value);
+        }
     }
 
     private Object applyTransformationRule(Object value, String rule) {

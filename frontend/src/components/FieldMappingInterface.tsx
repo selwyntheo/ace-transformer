@@ -274,12 +274,9 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
     switch (format) {
       case 'JSON':
         return [
-          { name: 'id', type: 'string', required: true, description: 'Unique identifier' },
-          { name: 'name', type: 'string', required: true, description: 'Display name' },
-          { name: 'value', type: 'string', description: 'Main value' },
-          { name: 'type', type: 'string', description: 'Data type' },
-          { name: 'timestamp', type: 'date', description: 'Creation timestamp' },
-          { name: 'metadata', type: 'object', description: 'Additional metadata' },
+          { name: 'name', type: 'string', required: true, description: 'Full name of the user' },
+          { name: 'email', type: 'string', required: true, description: 'Email address' },
+          { name: 'profile', type: 'object', required: false, description: 'User profile information' },
         ]
       case 'XML':
         return [
