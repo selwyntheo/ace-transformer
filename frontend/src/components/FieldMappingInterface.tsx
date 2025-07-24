@@ -16,6 +16,11 @@ import {
   IconButton,
   Snackbar,
   Alert,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material'
 import {
   DataObject as DataObjectIcon,
@@ -26,6 +31,8 @@ import {
   Preview as PreviewIcon,
   Transform as TransformIcon,
   DragIndicator as DragIndicatorIcon,
+  Add as AddIcon,
+  List as ListIcon,
 } from '@mui/icons-material'
 import type { FormatType, FieldMapping } from '../services/api'
 
@@ -34,6 +41,8 @@ interface SourceField {
   type: string
   sample?: string
   path: string
+  isArrayItem?: boolean
+  arrayLength?: number
 }
 
 interface TargetField {
@@ -68,6 +77,11 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info')
+  const [addFieldDialogOpen, setAddFieldDialogOpen] = useState(false)
+  const [newFieldName, setNewFieldName] = useState('')
+  const [newFieldType, setNewFieldType] = useState('string')
+  const [newFieldDescription, setNewFieldDescription] = useState('')
+  const [newFieldRequired, setNewFieldRequired] = useState(false)
 
   // Extract fields from source data
   const extractSourceFields = useCallback((data: string, format: FormatType): SourceField[] => {
@@ -91,27 +105,62 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
     }
   }, [])
 
-  // JSON field extraction
+  // JSON field extraction with improved array handling
   const extractJsonFields = (obj: any, prefix = '', depth = 0): SourceField[] => {
     const fields: SourceField[] = []
     
-    if (depth > 3) return fields // Prevent deep nesting
+    if (depth > 5) return fields // Prevent deep nesting
     
     Object.entries(obj).forEach(([key, value]) => {
       const fieldName = prefix ? `${prefix}.${key}` : key
-      const fieldType = Array.isArray(value) ? 'array' : typeof value
       
-      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      if (Array.isArray(value)) {
+        // Handle arrays
+        fields.push({
+          name: fieldName,
+          type: 'array',
+          sample: `Array[${value.length}]`,
+          path: fieldName,
+          isArrayItem: false,
+          arrayLength: value.length,
+        })
+        
+        // If array has objects, extract fields from first item
+        if (value.length > 0 && typeof value[0] === 'object' && value[0] !== null) {
+          const arrayItemFields = extractJsonFields(value[0], `${fieldName}[*]`, depth + 1)
+          arrayItemFields.forEach(field => {
+            fields.push({
+              ...field,
+              isArrayItem: true,
+              name: field.name.replace(`${fieldName}[*].`, `${fieldName}[].`),
+              path: field.path.replace(`${fieldName}[*].`, `${fieldName}[].`),
+            })
+          })
+        } else if (value.length > 0) {
+          // Array of primitives
+          fields.push({
+            name: `${fieldName}[]`,
+            type: typeof value[0],
+            sample: String(value[0]).substring(0, 50),
+            path: `${fieldName}[]`,
+            isArrayItem: true,
+            arrayLength: value.length,
+          })
+        }
+      } else if (typeof value === 'object' && value !== null) {
+        // Handle objects
         fields.push({
           name: fieldName,
           type: 'object',
           path: fieldName,
+          sample: 'Object',
         })
         fields.push(...extractJsonFields(value, fieldName, depth + 1))
       } else {
+        // Handle primitives
         fields.push({
           name: fieldName,
-          type: fieldType,
+          type: typeof value,
           sample: String(value).substring(0, 50),
           path: fieldName,
         })
@@ -220,8 +269,8 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
     return 'string'
   }
 
-  // Get target fields based on format
-  const getTargetFields = useCallback((format: FormatType): TargetField[] => {
+  // Get initial target fields based on format (now as starting point, not fixed)
+  const getInitialTargetFields = useCallback((format: FormatType): TargetField[] => {
     switch (format) {
       case 'JSON':
         return [
@@ -256,6 +305,60 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
     }
   }, [])
 
+  // Add new target field
+  const addNewTargetField = () => {
+    if (!newFieldName.trim()) {
+      setSnackbarMessage('Field name is required')
+      setSnackbarSeverity('error')
+      setSnackbarOpen(true)
+      return
+    }
+
+    // Check if field already exists
+    if (targetFields.find(f => f.name === newFieldName.trim())) {
+      setSnackbarMessage('Field with this name already exists')
+      setSnackbarSeverity('error')
+      setSnackbarOpen(true)
+      return
+    }
+
+    const newField: TargetField = {
+      name: newFieldName.trim(),
+      type: newFieldType,
+      required: newFieldRequired,
+      description: newFieldDescription.trim() || undefined,
+    }
+
+    setTargetFields(prev => [...prev, newField])
+    setSnackbarMessage(`Added new target field: ${newField.name}`)
+    setSnackbarSeverity('success')
+    setSnackbarOpen(true)
+    
+    // Reset form
+    setNewFieldName('')
+    setNewFieldType('string')
+    setNewFieldDescription('')
+    setNewFieldRequired(false)
+    setAddFieldDialogOpen(false)
+  }
+
+  // Remove target field
+  const removeTargetField = (fieldName: string) => {
+    // Remove field from target fields
+    setTargetFields(prev => prev.filter(f => f.name !== fieldName))
+    
+    // Remove any mappings that use this target field
+    const newMappings = mappings.filter(m => m.targetField !== fieldName)
+    if (newMappings.length !== mappings.length) {
+      setMappings(newMappings)
+      onMappingChange(newMappings)
+    }
+    
+    setSnackbarMessage(`Removed target field: ${fieldName}`)
+    setSnackbarSeverity('info')
+    setSnackbarOpen(true)
+  }
+
   // Update fields when data changes
   useEffect(() => {
     if (sourceData && sourceFormat) {
@@ -268,12 +371,12 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
 
   useEffect(() => {
     if (targetFormat) {
-      const fields = getTargetFields(targetFormat)
+      const fields = getInitialTargetFields(targetFormat)
       setTargetFields(fields)
     } else {
       setTargetFields([])
     }
-  }, [targetFormat, getTargetFields])
+  }, [targetFormat, getInitialTargetFields])
 
   // Handle field mapping
   const addMapping = (sourceField: SourceField, targetField: TargetField) => {
@@ -500,6 +603,7 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
                       borderRadius: 1,
                       mb: 1,
                       bgcolor: draggedField?.name === field.name ? 'action.selected' : 'background.paper',
+                      pl: field.isArrayItem ? 3 : 1,
                       '&:hover': {
                         bgcolor: 'action.hover',
                         transform: 'translateX(4px)',
@@ -511,12 +615,46 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
                     }}
                   >
                     <ListItemIcon>
-                      <DragIndicatorIcon />
+                      {field.type === 'array' ? <ListIcon /> : 
+                       field.isArrayItem ? <DataObjectIcon fontSize="small" /> : 
+                       <DragIndicatorIcon />}
                     </ListItemIcon>
                     <ListItemText
-                      primary={field.name}
-                      secondary={field.type}
-                      secondaryTypographyProps={{ variant: 'caption' }}
+                      primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {field.name}
+                          {field.isArrayItem && (
+                            <Chip
+                              size="small"
+                              label="Array Item"
+                              color="info"
+                              variant="outlined"
+                              sx={{ fontSize: '0.7rem' }}
+                            />
+                          )}
+                          {field.arrayLength && (
+                            <Chip
+                              size="small"
+                              label={`[${field.arrayLength}]`}
+                              color="primary"
+                              variant="filled"
+                              sx={{ fontSize: '0.7rem' }}
+                            />
+                          )}
+                        </Box>
+                      }
+                      secondary={
+                        <Box>
+                          <Typography variant="caption" color="textSecondary">
+                            {field.type}
+                          </Typography>
+                          {field.sample && (
+                            <Typography variant="caption" color="textSecondary" sx={{ display: 'block' }}>
+                              Sample: {field.sample}
+                            </Typography>
+                          )}
+                        </Box>
+                      }
                     />
                     <Chip
                       size="small"
@@ -534,10 +672,21 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
         {/* Target Fields */}
         <Box sx={{ flex: 1 }}>
           <Paper sx={{ p: 2, height: '400px', overflow: 'auto' }}>
-            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <DataObjectIcon />
-              Target Fields ({targetFields.length})
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <DataObjectIcon />
+                Target Fields ({targetFields.length})
+              </Typography>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={() => setAddFieldDialogOpen(true)}
+                disabled={!targetFormat}
+              >
+                Add Field
+              </Button>
+            </Box>
             {targetFields.length === 0 ? (
               <Typography color="text.secondary" sx={{ fontStyle: 'italic' }}>
                 No target fields available. Select a format to see target fields.
@@ -585,12 +734,22 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
                       secondary={field.description || field.type}
                       secondaryTypographyProps={{ variant: 'caption' }}
                     />
-                    <Chip
-                      size="small"
-                      label={field.type}
-                      color="secondary"
-                      variant="outlined"
-                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Chip
+                        size="small"
+                        label={field.type}
+                        color="secondary"
+                        variant="outlined"
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={() => removeTargetField(field.name)}
+                        color="error"
+                        sx={{ opacity: 0.7, '&:hover': { opacity: 1 } }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
                   </ListItem>
                 ))}
               </List>
@@ -687,6 +846,76 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
               Apply Preview
             </Button>
           )}
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Target Field Dialog */}
+      <Dialog
+        open={addFieldDialogOpen}
+        onClose={() => setAddFieldDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Add New Target Field</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <TextField
+              label="Field Name"
+              value={newFieldName}
+              onChange={(e) => setNewFieldName(e.target.value)}
+              fullWidth
+              required
+              autoFocus
+            />
+            
+            <FormControl fullWidth>
+              <InputLabel>Field Type</InputLabel>
+              <Select
+                value={newFieldType}
+                onChange={(e) => setNewFieldType(e.target.value)}
+                label="Field Type"
+              >
+                <MenuItem value="string">String</MenuItem>
+                <MenuItem value="number">Number</MenuItem>
+                <MenuItem value="integer">Integer</MenuItem>
+                <MenuItem value="boolean">Boolean</MenuItem>
+                <MenuItem value="date">Date</MenuItem>
+                <MenuItem value="array">Array</MenuItem>
+                <MenuItem value="object">Object</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Description (Optional)"
+              value={newFieldDescription}
+              onChange={(e) => setNewFieldDescription(e.target.value)}
+              fullWidth
+              multiline
+              rows={2}
+            />
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <input
+                type="checkbox"
+                checked={newFieldRequired}
+                onChange={(e) => setNewFieldRequired(e.target.checked)}
+                id="required-checkbox"
+              />
+              <label htmlFor="required-checkbox">
+                <Typography variant="body2">Required field</Typography>
+              </label>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddFieldDialogOpen(false)}>Cancel</Button>
+          <Button 
+            variant="contained" 
+            onClick={addNewTargetField}
+            disabled={!newFieldName.trim()}
+          >
+            Add Field
+          </Button>
         </DialogActions>
       </Dialog>
 
