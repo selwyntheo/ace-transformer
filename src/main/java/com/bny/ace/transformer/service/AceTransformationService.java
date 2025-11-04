@@ -158,8 +158,8 @@ public class AceTransformationService {
             if (part.contains("[]")) {
                 // Handle array notation like "users[]"
                 String arrayKey = part.replace("[]", "");
-                if (current instanceof Map<?, ?> map) {
-                    current = map.get(arrayKey);
+                if (current instanceof Map<?, ?> currentMap) {
+                    current = currentMap.get(arrayKey);
                     if (current instanceof java.util.List<?> list) {
                         
                         // If this is the last part, return the list
@@ -172,12 +172,12 @@ public class AceTransformationService {
                         String remainingPath = String.join(".", java.util.Arrays.copyOfRange(parts, i + 1, parts.length));
                         
                         for (Object item : list) {
-                            if (item instanceof Map<?, ?> map) {
-                                Object value = getNestedValueFromMap(map, remainingPath);
+                            if (item instanceof Map<?, ?> itemMap) {
+                                Object value = getNestedValueFromMap(itemMap, remainingPath);
                                 if (value != null) {
                                     // If the value is a list (from nested arrays), add all items
-                                    if (value instanceof java.util.List<?> list1) {
-                                        results.addAll(list1);
+                                    if (value instanceof java.util.List<?> valueList) {
+                                        results.addAll(valueList);
                                     } else {
                                         results.add(value);
                                     }
@@ -189,13 +189,13 @@ public class AceTransformationService {
                 } else {
                     return null;
                 }
-            } else if (current instanceof Map<?, ?> map) {
-                current = map.get(part);
+            } else if (current instanceof Map<?, ?> currentMap) {
+                current = currentMap.get(part);
             } else if (current instanceof java.util.List<?> list) {
                 java.util.List<Object> results = new java.util.ArrayList<>();
                 for (Object item : list) {
-                    if (item instanceof Map<?, ?> map) {
-                        Object value = map.get(part);
+                    if (item instanceof Map<?, ?> itemMap) {
+                        Object value = itemMap.get(part);
                         if (value != null) {
                             results.add(value);
                         }
@@ -220,8 +220,8 @@ public class AceTransformationService {
             if (part.contains("[]")) {
                 // Handle array notation in nested paths
                 String arrayKey = part.replace("[]", "");
-                if (current instanceof Map<?, ?> map1) {
-                    current = map1.get(arrayKey);
+                if (current instanceof Map<?, ?> currentMap) {
+                    current = currentMap.get(arrayKey);
                     if (current instanceof java.util.List<?> list) {
                         
                         // If this is the last part, return the list
@@ -234,12 +234,12 @@ public class AceTransformationService {
                         String remainingPath = String.join(".", java.util.Arrays.copyOfRange(parts, i + 1, parts.length));
                         
                         for (Object item : list) {
-                            if (item instanceof Map<?, ?> map1) {
-                                Object value = getNestedValueFromMap(map1, remainingPath);
+                            if (item instanceof Map<?, ?> itemMap) {
+                                Object value = getNestedValueFromMap(itemMap, remainingPath);
                                 if (value != null) {
                                     // If the value is a list (from nested arrays), add all items
-                                    if (value instanceof java.util.List<?> list1) {
-                                        results.addAll(list1);
+                                    if (value instanceof java.util.List<?> valueList) {
+                                        results.addAll(valueList);
                                     } else {
                                         results.add(value);
                                     }
@@ -251,8 +251,8 @@ public class AceTransformationService {
                 } else {
                     return null;
                 }
-            } else if (current instanceof Map<?, ?> map1) {
-                current = map1.get(part);
+            } else if (current instanceof Map<?, ?> currentMap) {
+                current = currentMap.get(part);
             } else {
                 return null;
             }
