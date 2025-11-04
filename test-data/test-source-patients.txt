@@ -1,0 +1,354 @@
+HOSPITAL PATIENT RECORDS - BATCH EXPORT 2025-11-03
+=======================================================
+
+HOSPITAL: St. Mary's Medical Center
+LOCATION: Boston, Massachusetts
+EXPORT_DATE: 2025-11-03
+TOTAL_RECORDS: 3
+
+---------------------------------------------------------
+RECORD: 1
+---------------------------------------------------------
+PATIENT_ID: PAT-2025-0001
+MEDICAL_RECORD_NUMBER: MRN-987654
+
+PERSONAL_INFORMATION:
+  FIRST_NAME: John
+  MIDDLE_NAME: Robert
+  LAST_NAME: Williams
+  DATE_OF_BIRTH: 1965-04-12
+  AGE: 60
+  GENDER: M
+  SSN: XXX-XX-7890
+  
+CONTACT_INFORMATION:
+  PRIMARY_PHONE: +1-617-555-0101
+  SECONDARY_PHONE: +1-617-555-0102
+  EMAIL: john.williams@email.com
+  
+  HOME_ADDRESS:
+    STREET: 234 Beacon Street
+    APARTMENT: Unit 5A
+    CITY: Boston
+    STATE: MA
+    ZIP: 02116
+    COUNTRY: USA
+
+INSURANCE_INFORMATION:
+  PRIMARY_INSURANCE:
+    PROVIDER: Blue Cross Blue Shield
+    POLICY_NUMBER: BCBS-MA-12345678
+    GROUP_NUMBER: GRP-9876
+    COVERAGE_START: 2020-01-01
+    COVERAGE_STATUS: 1
+  
+  SECONDARY_INSURANCE:
+    PROVIDER: Medicare
+    POLICY_NUMBER: MED-123456789A
+    GROUP_NUMBER: N/A
+    COVERAGE_START: 2024-04-01
+    COVERAGE_STATUS: 1
+
+MEDICAL_HISTORY:
+  BLOOD_TYPE: O+
+  ALLERGIES: Penicillin, Shellfish, Latex
+  CHRONIC_CONDITIONS: Hypertension, Type 2 Diabetes, High Cholesterol
+  
+  CURRENT_MEDICATIONS:
+    MEDICATION_1:
+      NAME: Lisinopril
+      DOSAGE: 10mg
+      FREQUENCY: Once daily
+      PRESCRIBING_DOCTOR: Dr. Sarah Mitchell
+      START_DATE: 2022-06-15
+      
+    MEDICATION_2:
+      NAME: Metformin
+      DOSAGE: 500mg
+      FREQUENCY: Twice daily
+      PRESCRIBING_DOCTOR: Dr. Sarah Mitchell
+      START_DATE: 2023-01-20
+      
+    MEDICATION_3:
+      NAME: Atorvastatin
+      DOSAGE: 20mg
+      FREQUENCY: Once daily at bedtime
+      PRESCRIBING_DOCTOR: Dr. Sarah Mitchell
+      START_DATE: 2022-08-10
+
+ADMISSIONS:
+  ADMISSION_1:
+    ADMISSION_ID: ADM-2025-0234
+    ADMISSION_DATE: 2025-10-15
+    DISCHARGE_DATE: 2025-10-18
+    LENGTH_OF_STAY: 3
+    ADMISSION_TYPE: Emergency
+    REASON: Chest pain
+    DIAGNOSIS: Acute coronary syndrome
+    TREATING_PHYSICIAN: Dr. Robert Johnson
+    DEPARTMENT: Cardiology
+    ROOM_NUMBER: 304-B
+    
+    PROCEDURES_PERFORMED:
+      PROCEDURE_1:
+        NAME: Cardiac catheterization
+        DATE: 2025-10-15
+        PERFORMING_DOCTOR: Dr. Robert Johnson
+        OUTCOME: Successful
+        
+      PROCEDURE_2:
+        NAME: Coronary angioplasty with stent
+        DATE: 2025-10-16
+        PERFORMING_DOCTOR: Dr. Robert Johnson
+        OUTCOME: Successful
+    
+    DISCHARGE_DISPOSITION: Home with home health services
+    FOLLOW_UP_REQUIRED: Yes
+    FOLLOW_UP_DATE: 2025-10-25
+
+RECENT_VISITS:
+  VISIT_1:
+    VISIT_ID: VIS-2025-1234
+    DATE: 2025-09-20
+    TYPE: Outpatient
+    DEPARTMENT: Primary Care
+    CHIEF_COMPLAINT: Routine checkup
+    PROVIDER: Dr. Sarah Mitchell
+    DIAGNOSIS: Routine examination
+    VISIT_STATUS: 3
+    
+  VISIT_2:
+    VISIT_ID: VIS-2025-0987
+    DATE: 2025-08-10
+    TYPE: Outpatient
+    DEPARTMENT: Endocrinology
+    CHIEF_COMPLAINT: Diabetes management
+    PROVIDER: Dr. Lisa Thompson
+    DIAGNOSIS: Type 2 Diabetes - well controlled
+    VISIT_STATUS: 3
+
+LAB_RESULTS:
+  RESULT_1:
+    TEST_NAME: Hemoglobin A1C
+    DATE: 2025-09-20
+    VALUE: 6.5
+    UNIT: %
+    REFERENCE_RANGE: 4.0-5.6
+    STATUS: Slightly elevated
+    
+  RESULT_2:
+    TEST_NAME: Total Cholesterol
+    DATE: 2025-09-20
+    VALUE: 185
+    UNIT: mg/dL
+    REFERENCE_RANGE: <200
+    STATUS: Normal
+    
+  RESULT_3:
+    TEST_NAME: Blood Pressure
+    DATE: 2025-09-20
+    VALUE: 128/82
+    UNIT: mmHg
+    REFERENCE_RANGE: <120/80
+    STATUS: Slightly elevated
+
+EMERGENCY_CONTACTS:
+  CONTACT_1:
+    NAME: Mary Williams
+    RELATIONSHIP: Spouse
+    PHONE: +1-617-555-0201
+    IS_PRIMARY: Yes
+    
+  CONTACT_2:
+    NAME: Susan Williams
+    RELATIONSHIP: Daughter
+    PHONE: +1-617-555-0202
+    IS_PRIMARY: No
+
+---------------------------------------------------------
+RECORD: 2
+---------------------------------------------------------
+PATIENT_ID: PAT-2025-0002
+MEDICAL_RECORD_NUMBER: MRN-123456
+
+PERSONAL_INFORMATION:
+  FIRST_NAME: Maria
+  MIDDLE_NAME: Elena
+  LAST_NAME: Garcia
+  DATE_OF_BIRTH: 1978-11-08
+  AGE: 46
+  GENDER: F
+  SSN: XXX-XX-4567
+  
+CONTACT_INFORMATION:
+  PRIMARY_PHONE: +1-617-555-0301
+  SECONDARY_PHONE: +1-617-555-0302
+  EMAIL: maria.garcia@email.com
+  
+  HOME_ADDRESS:
+    STREET: 567 Commonwealth Avenue
+    APARTMENT: Apt 12C
+    CITY: Boston
+    STATE: MA
+    ZIP: 02215
+    COUNTRY: USA
+
+INSURANCE_INFORMATION:
+  PRIMARY_INSURANCE:
+    PROVIDER: United Healthcare
+    POLICY_NUMBER: UHC-MA-87654321
+    GROUP_NUMBER: GRP-5432
+    COVERAGE_START: 2019-03-01
+    COVERAGE_STATUS: 1
+
+MEDICAL_HISTORY:
+  BLOOD_TYPE: A+
+  ALLERGIES: None reported
+  CHRONIC_CONDITIONS: Asthma
+  
+  CURRENT_MEDICATIONS:
+    MEDICATION_1:
+      NAME: Albuterol Inhaler
+      DOSAGE: 90mcg
+      FREQUENCY: As needed
+      PRESCRIBING_DOCTOR: Dr. Patricia Lee
+      START_DATE: 2020-05-10
+
+ADMISSIONS:
+  ADMISSION_1:
+    ADMISSION_ID: ADM-2025-0456
+    ADMISSION_DATE: 2025-11-01
+    DISCHARGE_DATE: 2025-11-02
+    LENGTH_OF_STAY: 1
+    ADMISSION_TYPE: Scheduled
+    REASON: Minor surgical procedure
+    DIAGNOSIS: Benign skin lesion removal
+    TREATING_PHYSICIAN: Dr. Michael Chang
+    DEPARTMENT: Dermatology
+    ROOM_NUMBER: 215-A
+    
+    PROCEDURES_PERFORMED:
+      PROCEDURE_1:
+        NAME: Excision of skin lesion
+        DATE: 2025-11-01
+        PERFORMING_DOCTOR: Dr. Michael Chang
+        OUTCOME: Successful
+    
+    DISCHARGE_DISPOSITION: Home
+    FOLLOW_UP_REQUIRED: Yes
+    FOLLOW_UP_DATE: 2025-11-15
+
+RECENT_VISITS:
+  VISIT_1:
+    VISIT_ID: VIS-2025-2345
+    DATE: 2025-10-20
+    TYPE: Outpatient
+    DEPARTMENT: Primary Care
+    CHIEF_COMPLAINT: Annual physical
+    PROVIDER: Dr. Patricia Lee
+    DIAGNOSIS: Healthy adult
+    VISIT_STATUS: 3
+
+LAB_RESULTS:
+  RESULT_1:
+    TEST_NAME: Complete Blood Count
+    DATE: 2025-10-20
+    VALUE: Normal
+    UNIT: Various
+    REFERENCE_RANGE: Normal
+    STATUS: Normal
+
+EMERGENCY_CONTACTS:
+  CONTACT_1:
+    NAME: Carlos Garcia
+    RELATIONSHIP: Spouse
+    PHONE: +1-617-555-0401
+    IS_PRIMARY: Yes
+
+---------------------------------------------------------
+RECORD: 3
+---------------------------------------------------------
+PATIENT_ID: PAT-2025-0003
+MEDICAL_RECORD_NUMBER: MRN-246801
+
+PERSONAL_INFORMATION:
+  FIRST_NAME: David
+  MIDDLE_NAME: Lee
+  LAST_NAME: Thompson
+  DATE_OF_BIRTH: 1992-07-25
+  AGE: 33
+  GENDER: M
+  SSN: XXX-XX-1357
+  
+CONTACT_INFORMATION:
+  PRIMARY_PHONE: +1-617-555-0501
+  SECONDARY_PHONE: N/A
+  EMAIL: david.thompson@email.com
+  
+  HOME_ADDRESS:
+    STREET: 890 Newbury Street
+    APARTMENT: N/A
+    CITY: Boston
+    STATE: MA
+    ZIP: 02118
+    COUNTRY: USA
+
+INSURANCE_INFORMATION:
+  PRIMARY_INSURANCE:
+    PROVIDER: Aetna
+    POLICY_NUMBER: AET-MA-11223344
+    GROUP_NUMBER: GRP-7788
+    COVERAGE_START: 2023-01-01
+    COVERAGE_STATUS: 1
+
+MEDICAL_HISTORY:
+  BLOOD_TYPE: B+
+  ALLERGIES: Sulfa drugs
+  CHRONIC_CONDITIONS: None
+  
+  CURRENT_MEDICATIONS:
+    None
+
+ADMISSIONS:
+  None
+
+RECENT_VISITS:
+  VISIT_1:
+    VISIT_ID: VIS-2025-3456
+    DATE: 2025-10-30
+    TYPE: Emergency
+    DEPARTMENT: Emergency Medicine
+    CHIEF_COMPLAINT: Ankle sprain
+    PROVIDER: Dr. Amanda Foster
+    DIAGNOSIS: Grade 2 ankle sprain
+    VISIT_STATUS: 3
+    
+  VISIT_2:
+    VISIT_ID: VIS-2025-3001
+    DATE: 2025-06-15
+    TYPE: Outpatient
+    DEPARTMENT: Primary Care
+    CHIEF_COMPLAINT: Annual checkup
+    PROVIDER: Dr. Amanda Foster
+    DIAGNOSIS: Healthy adult
+    VISIT_STATUS: 3
+
+LAB_RESULTS:
+  None recent
+
+EMERGENCY_CONTACTS:
+  CONTACT_1:
+    NAME: Jennifer Thompson
+    RELATIONSHIP: Mother
+    PHONE: +1-617-555-0601
+    IS_PRIMARY: Yes
+
+---------------------------------------------------------
+END OF EXPORT
+---------------------------------------------------------
+
+SUMMARY STATISTICS:
+  TOTAL_PATIENTS: 3
+  ACTIVE_ADMISSIONS: 0
+  PENDING_FOLLOW_UPS: 2
+  EXPORT_COMPLETED: 2025-11-03T15:30:00Z

@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmployeeDatabase>
+  <Company>
+    <CompanyInfo>
+      <CompanyId>COMP-001</CompanyId>
+      <CompanyName>TechCorp Industries</CompanyName>
+      <Industry>Technology</Industry>
+      <FoundedYear>2010</FoundedYear>
+      <HeadquartersLocation>
+        <Street>100 Innovation Drive</Street>
+        <City>San Francisco</City>
+        <State>CA</State>
+        <ZipCode>94105</ZipCode>
+        <Country>USA</Country>
+      </HeadquartersLocation>
+    </CompanyInfo>
+    <Employees>
+      <Employee>
+        <EmployeeId>EMP-10001</EmployeeId>
+        <PersonalDetails>
+          <FirstName>Michael</FirstName>
+          <MiddleInitial>J</MiddleInitial>
+          <LastName>Anderson</LastName>
+          <DateOfBirth>1985-06-15</DateOfBirth>
+          <Gender>M</Gender>
+          <SocialSecurityNumber>XXX-XX-1234</SocialSecurityNumber>
+        </PersonalDetails>
+        <ContactInfo>
+          <Email>michael.anderson@techcorp.com</Email>
+          <PersonalEmail>m.anderson@email.com</PersonalEmail>
+          <PhoneNumbers>
+            <Phone type="work" isPrimary="true">+1-555-1001</Phone>
+            <Phone type="mobile" isPrimary="false">+1-555-1002</Phone>
+          </PhoneNumbers>
+          <Address>
+            <Type>Home</Type>
+            <Street>456 Oak Avenue</Street>
+            <Apartment>Apt 3C</Apartment>
+            <City>San Mateo</City>
+            <State>CA</State>
+            <ZipCode>94401</ZipCode>
+            <Country>USA</Country>
+          </Address>
+        </ContactInfo>
+        <Employment>
+          <Department>
+            <DepartmentId>DEPT-ENG</DepartmentId>
+            <DepartmentName>Engineering</DepartmentName>
+            <Division>Software Development</Division>
+          </Department>
+          <Position>
+            <JobTitle>Senior Software Engineer</JobTitle>
+            <JobLevel>5</JobLevel>
+            <JobCode>SWE-5</JobCode>
+          </Position>
+          <EmploymentStatus>1</EmploymentStatus>
+          <EmploymentType>full_time</EmploymentType>
+          <HireDate>2018-03-15</HireDate>
+          <Manager>
+            <ManagerId>EMP-10050</ManagerId>
+            <ManagerName>Jennifer Smith</ManagerName>
+          </Manager>
+        </Employment>
+        <Compensation>
+          <BaseSalary currency="USD">145000</BaseSalary>
+          <Bonus>
+            <TargetBonus>20000</TargetBonus>
+            <LastBonusPaid>18500</LastBonusPaid>
+            <BonusDate>2025-03-01</BonusDate>
+          </Bonus>
+          <StockOptions>
+            <TotalGrants>5000</TotalGrants>
+            <Vested>2500</Vested>
+            <Unvested>2500</Unvested>
+          </StockOptions>
+          <Benefits>
+            <HealthInsurance>true</HealthInsurance>
+            <DentalInsurance>true</DentalInsurance>
+            <VisionInsurance>true</VisionInsurance>
+            <RetirementPlan>401k</RetirementPlan>
+            <PaidTimeOff>
+              <VacationDays>20</VacationDays>
+              <SickDays>10</SickDays>
+              <PersonalDays>5</PersonalDays>
+            </PaidTimeOff>
+          </Benefits>
+        </Compensation>
+        <Skills>
+          <Skill>
+            <SkillName>JavaScript</SkillName>
+            <ProficiencyLevel>Expert</ProficiencyLevel>
+            <YearsOfExperience>10</YearsOfExperience>
+          </Skill>
+          <Skill>
+            <SkillName>React</SkillName>
+            <ProficiencyLevel>Expert</ProficiencyLevel>
+            <YearsOfExperience>7</YearsOfExperience>
+          </Skill>
+          <Skill>
+            <SkillName>TypeScript</SkillName>
+            <ProficiencyLevel>Advanced</ProficiencyLevel>
+            <YearsOfExperience>5</YearsOfExperience>
+          </Skill>
+        </Skills>
+        <Projects>
+          <Project>
+            <ProjectId>PROJ-2025-001</ProjectId>
+            <ProjectName>Customer Portal Redesign</ProjectName>
+            <Role>Lead Developer</Role>
+            <StartDate>2025-01-15</StartDate>
+            <EndDate>2025-06-30</EndDate>
+            <Status>2</Status>
+            <BudgetAllocated>500000</BudgetAllocated>
+          </Project>
+          <Project>
+            <ProjectId>PROJ-2024-045</ProjectId>
+            <ProjectName>Mobile App Development</ProjectName>
+            <Role>Senior Developer</Role>
+            <StartDate>2024-06-01</StartDate>
+            <EndDate>2024-12-31</EndDate>
+            <Status>3</Status>
+            <BudgetAllocated>750000</BudgetAllocated>
+          </Project>
+        </Projects>
+        <PerformanceReviews>
+          <Review>
+            <ReviewId>REV-2025-001</ReviewId>
+            <ReviewDate>2025-03-01</ReviewDate>
+            <ReviewPeriod>2024</ReviewPeriod>
+            <OverallRating>4.5</OverallRating>
+            <Ratings>
+              <Rating category="Technical Skills">5</Rating>
+              <Rating category="Communication">4</Rating>
+              <Rating category="Leadership">4.5</Rating>
+              <Rating category="Teamwork">5</Rating>
+            </Ratings>
+            <Comments>Excellent performance, consistently delivers high-quality work</Comments>
+            <Reviewer>
+              <ReviewerId>EMP-10050</ReviewerId>
+              <ReviewerName>Jennifer Smith</ReviewerName>
+            </Reviewer>
+          </Review>
+        </PerformanceReviews>
+        <TimeOff>
+          <Request>
+            <RequestId>TO-2025-034</RequestId>
+            <RequestType>vacation</RequestType>
+            <StartDate>2025-07-01</StartDate>
+            <EndDate>2025-07-10</EndDate>
+            <TotalDays>10</TotalDays>
+            <Status>1</Status>
+            <RequestedDate>2025-05-15</RequestedDate>
+            <ApprovedBy>EMP-10050</ApprovedBy>
+            <ApprovedDate>2025-05-16</ApprovedDate>
+          </Request>
+        </TimeOff>
+        <EmergencyContacts>
+          <Contact priority="1">
+            <Name>Lisa Anderson</Name>
+            <Relationship>Spouse</Relationship>
+            <Phone>+1-555-2001</Phone>
+            <Email>lisa.anderson@email.com</Email>
+          </Contact>
+          <Contact priority="2">
+            <Name>Robert Anderson</Name>
+            <Relationship>Father</Relationship>
+            <Phone>+1-555-2002</Phone>
+            <Email>robert.anderson@email.com</Email>
+          </Contact>
+        </EmergencyContacts>
+      </Employee>
+      <Employee>
+        <EmployeeId>EMP-10002</EmployeeId>
+        <PersonalDetails>
+          <FirstName>Emily</FirstName>
+          <MiddleInitial>R</MiddleInitial>
+          <LastName>Chen</LastName>
+          <DateOfBirth>1990-09-22</DateOfBirth>
+          <Gender>F</Gender>
+          <SocialSecurityNumber>XXX-XX-5678</SocialSecurityNumber>
+        </PersonalDetails>
+        <ContactInfo>
+          <Email>emily.chen@techcorp.com</Email>
+          <PersonalEmail>e.chen@email.com</PersonalEmail>
+          <PhoneNumbers>
+            <Phone type="work" isPrimary="true">+1-555-1003</Phone>
+            <Phone type="mobile" isPrimary="false">+1-555-1004</Phone>
+          </PhoneNumbers>
+          <Address>
+            <Type>Home</Type>
+            <Street>789 Pine Street</Street>
+            <Apartment></Apartment>
+            <City>Palo Alto</City>
+            <State>CA</State>
+            <ZipCode>94301</ZipCode>
+            <Country>USA</Country>
+          </Address>
+        </ContactInfo>
+        <Employment>
+          <Department>
+            <DepartmentId>DEPT-PROD</DepartmentId>
+            <DepartmentName>Product Management</DepartmentName>
+            <Division>Product Strategy</Division>
+          </Department>
+          <Position>
+            <JobTitle>Senior Product Manager</JobTitle>
+            <JobLevel>5</JobLevel>
+            <JobCode>PM-5</JobCode>
+          </Position>
+          <EmploymentStatus>1</EmploymentStatus>
+          <EmploymentType>full_time</EmploymentType>
+          <HireDate>2019-08-01</HireDate>
+          <Manager>
+            <ManagerId>EMP-10051</ManagerId>
+            <ManagerName>David Brown</ManagerName>
+          </Manager>
+        </Employment>
+        <Compensation>
+          <BaseSalary currency="USD">155000</BaseSalary>
+          <Bonus>
+            <TargetBonus>25000</TargetBonus>
+            <LastBonusPaid>26000</LastBonusPaid>
+            <BonusDate>2025-03-01</BonusDate>
+          </Bonus>
+          <StockOptions>
+            <TotalGrants>6000</TotalGrants>
+            <Vested>3000</Vested>
+            <Unvested>3000</Unvested>
+          </StockOptions>
+          <Benefits>
+            <HealthInsurance>true</HealthInsurance>
+            <DentalInsurance>true</DentalInsurance>
+            <VisionInsurance>true</VisionInsurance>
+            <RetirementPlan>401k</RetirementPlan>
+            <PaidTimeOff>
+              <VacationDays>22</VacationDays>
+              <SickDays>10</SickDays>
+              <PersonalDays>5</PersonalDays>
+            </PaidTimeOff>
+          </Benefits>
+        </Compensation>
+        <Skills>
+          <Skill>
+            <SkillName>Product Strategy</SkillName>
+            <ProficiencyLevel>Expert</ProficiencyLevel>
+            <YearsOfExperience>8</YearsOfExperience>
+          </Skill>
+          <Skill>
+            <SkillName>Data Analysis</SkillName>
+            <ProficiencyLevel>Advanced</ProficiencyLevel>
+            <YearsOfExperience>6</YearsOfExperience>
+          </Skill>
+        </Skills>
+        <Projects>
+          <Project>
+            <ProjectId>PROJ-2025-002</ProjectId>
+            <ProjectName>AI Feature Launch</ProjectName>
+            <Role>Product Lead</Role>
+            <StartDate>2025-02-01</StartDate>
+            <EndDate>2025-08-31</EndDate>
+            <Status>2</Status>
+            <BudgetAllocated>1000000</BudgetAllocated>
+          </Project>
+        </Projects>
+        <PerformanceReviews>
+          <Review>
+            <ReviewId>REV-2025-002</ReviewId>
+            <ReviewDate>2025-03-15</ReviewDate>
+            <ReviewPeriod>2024</ReviewPeriod>
+            <OverallRating>4.8</OverallRating>
+            <Ratings>
+              <Rating category="Strategic Thinking">5</Rating>
+              <Rating category="Execution">5</Rating>
+              <Rating category="Leadership">4.5</Rating>
+              <Rating category="Collaboration">5</Rating>
+            </Ratings>
+            <Comments>Outstanding contributor, drives significant business impact</Comments>
+            <Reviewer>
+              <ReviewerId>EMP-10051</ReviewerId>
+              <ReviewerName>David Brown</ReviewerName>
+            </Reviewer>
+          </Review>
+        </PerformanceReviews>
+        <TimeOff>
+          <Request>
+            <RequestId>TO-2025-045</RequestId>
+            <RequestType>vacation</RequestType>
+            <StartDate>2025-12-20</StartDate>
+            <EndDate>2025-12-31</EndDate>
+            <TotalDays>12</TotalDays>
+            <Status>2</Status>
+            <RequestedDate>2025-10-01</RequestedDate>
+            <ApprovedBy>EMP-10051</ApprovedBy>
+            <ApprovedDate>2025-10-02</ApprovedDate>
+          </Request>
+        </TimeOff>
+        <EmergencyContacts>
+          <Contact priority="1">
+            <Name>James Chen</Name>
+            <Relationship>Spouse</Relationship>
+            <Phone>+1-555-3001</Phone>
+            <Email>james.chen@email.com</Email>
+          </Contact>
+        </EmergencyContacts>
+      </Employee>
+    </Employees>
+  </Company>
+</EmployeeDatabase>

@@ -1,0 +1,17 @@
+{
+  "userId": "USR-001",
+  "firstName": "Alice",
+  "lastName": "Smith",
+  "email": "alice.smith@example.com",
+  "age": 28,
+  "status": 1,
+  "registrationDate": "2024-01-15",
+  "address": {
+    "street": "123 Elm Street",
+    "city": "Boston",
+    "state": "MA",
+    "zipCode": "02101"
+  },
+  "scores": [95, 87, 92, 88, 91],
+  "isActive": true
+}

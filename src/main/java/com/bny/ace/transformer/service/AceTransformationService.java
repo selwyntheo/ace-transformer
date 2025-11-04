@@ -130,8 +130,12 @@ public class AceTransformationService {
                 // Handle different field types
                 switch (mapping.getFieldType()) {
                     case COMPUTED:
+                        // For COUNT type, use sourceField; for CONSTANT, use transformationRule
+                        String ruleOrSource = mapping.getComputedType() == FieldMappingRequest.ComputedFieldType.COUNT 
+                            ? mapping.getSourceField() 
+                            : mapping.getTransformationRule();
                         transformedValue = generateComputedValue(mapping.getComputedType(), 
-                                                                mapping.getTransformationRule(), 
+                                                                ruleOrSource, 
                                                                 data, counter);
                         setNestedValue(mappedData, mapping.getTargetField(), transformedValue);
                         break;

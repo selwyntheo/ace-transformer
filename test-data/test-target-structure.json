@@ -1,0 +1,104 @@
+{
+  "transactionId": "",
+  "recordId": "",
+  "importTimestamp": "",
+  "dataVersion": "2.0",
+  "buyer": {
+    "buyerId": "",
+    "fullName": "",
+    "email": "",
+    "phoneNumber": "",
+    "birthDate": "",
+    "location": {
+      "fullAddress": "",
+      "cityState": "",
+      "zipCode": "",
+      "countryCode": ""
+    },
+    "accountInfo": {
+      "membershipLevel": "",
+      "loyaltyPointsBalance": 0,
+      "memberSince": "",
+      "totalLifetimeValue": 0
+    }
+  },
+  "purchaseDetails": {
+    "purchaseId": "",
+    "orderReference": "",
+    "purchaseDate": "",
+    "statusCode": "",
+    "statusDescription": "",
+    "channelSource": ""
+  },
+  "lineItems": [
+    {
+      "itemId": "",
+      "itemNumber": 0,
+      "productSku": "",
+      "description": "",
+      "mainCategory": "",
+      "subCategory": "",
+      "qty": 0,
+      "pricePerUnit": 0,
+      "lineTotal": 0,
+      "discountApplied": 0,
+      "finalAmount": 0
+    }
+  ],
+  "financials": {
+    "itemsSubtotal": 0,
+    "totalDiscount": 0,
+    "taxTotal": 0,
+    "shippingFee": 0,
+    "grandTotal": 0,
+    "currencyCode": "",
+    "paymentDetails": {
+      "paymentMethod": "",
+      "paymentStatus": "",
+      "paymentReference": "",
+      "cardBrand": "",
+      "lastDigits": "",
+      "processedDate": ""
+    }
+  },
+  "fulfillment": {
+    "shippingMethod": "",
+    "carrierName": "",
+    "trackingId": "",
+    "recipientName": "",
+    "deliveryAddress": "",
+    "expectedDelivery": "",
+    "specialInstructions": ""
+  },
+  "analytics": {
+    "itemCount": 0,
+    "averageItemPrice": 0,
+    "totalQuantityOrdered": 0,
+    "discountPercentage": 0,
+    "hasDiscount": false,
+    "hasPremiumItems": false
+  },
+  "auditTrail": [
+    {
+      "eventSequence": 0,
+      "eventName": "",
+      "eventTimestamp": "",
+      "performedBy": ""
+    }
+  ],
+  "flags": {
+    "requiresSignature": false,
+    "isGiftOrder": false,
+    "isInternational": false,
+    "priorityProcessing": false
+  },
+  "metadata": {
+    "processingId": "",
+    "importSource": "migration",
+    "lastModified": "",
+    "dataQuality": {
+      "completeness": 0,
+      "hasAllRequiredFields": false
+    }
+  }
+}

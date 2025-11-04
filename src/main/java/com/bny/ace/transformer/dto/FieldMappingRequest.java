@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class FieldMappingRequest {
 
-    @NotBlank(message = "Source field is required")
+    // Source field is optional for COMPUTED and NESTED_OBJECT types
     private String sourceField;
 
     @NotBlank(message = "Target field is required")
