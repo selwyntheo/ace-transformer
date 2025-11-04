@@ -1,0 +1,116 @@
+{
+  "orderId": "ORD-2025-001234",
+  "orderStatus": 2,
+  "customer": {
+    "customerId": "CUST-456789",
+    "personalInfo": {
+      "firstName": "Sarah",
+      "lastName": "Johnson"
+    },
+    "contactDetails": {
+      "primaryEmail": "sarah.johnson@email.com",
+      "phones": [
+        {
+          "type": "mobile",
+          "number": "+1-555-0101"
+        },
+        {
+          "type": "work",
+          "number": "+1-555-0102"
+        }
+      ]
+    },
+    "addresses": [
+      {
+        "type": "shipping",
+        "addressLine1": "123 Main Street",
+        "city": "San Francisco",
+        "state": "CA",
+        "postalCode": "94102",
+        "country": "USA"
+      }
+    ],
+    "loyaltyProgram": {
+      "tier": "gold",
+      "points": 2500,
+      "joinDate": "2022-01-15"
+    }
+  },
+  "items": [
+    {
+      "sku": "LAPTOP-001",
+      "name": "Professional Laptop",
+      "quantity": 1,
+      "unitPrice": 1199.99,
+      "total": 1199.99,
+      "category": {
+        "categoryName": "Electronics",
+        "subcategory": {
+          "subcategoryName": "Computers"
+        }
+      }
+    },
+    {
+      "sku": "MOUSE-001",
+      "name": "Wireless Mouse",
+      "quantity": 2,
+      "unitPrice": 29.99,
+      "total": 59.98,
+      "category": {
+        "categoryName": "Electronics",
+        "subcategory": {
+          "subcategoryName": "Accessories"
+        }
+      }
+    },
+    {
+      "sku": "KEYBOARD-001",
+      "name": "Mechanical Keyboard",
+      "quantity": 3,
+      "unitPrice": 89.99,
+      "total": 269.97,
+      "category": {
+        "categoryName": "Electronics",
+        "subcategory": {
+          "subcategoryName": "Accessories"
+        }
+      }
+    }
+  ],
+  "pricing": {
+    "subtotal": 1529.94,
+    "totalDiscount": 152.99,
+    "tax": 137.69,
+    "shipping": 15.00,
+    "total": 1529.64
+  },
+  "payment": {
+    "method": "credit_card",
+    "status": 1,
+    "card": {
+      "type": "visa",
+      "lastFour": "4242",
+      "expiryMonth": 12,
+      "expiryYear": 2026
+    }
+  },
+  "timeline": {
+    "events": [
+      {
+        "eventType": "ORDER_PLACED",
+        "timestamp": "2025-11-01T10:30:00Z",
+        "performedBy": "customer"
+      },
+      {
+        "eventType": "PAYMENT_PROCESSED",
+        "timestamp": "2025-11-01T10:30:15Z",
+        "performedBy": "system"
+      },
+      {
+        "eventType": "ORDER_CONFIRMED",
+        "timestamp": "2025-11-01T10:31:00Z",
+        "performedBy": "system"
+      }
+    ]
+  }
+}

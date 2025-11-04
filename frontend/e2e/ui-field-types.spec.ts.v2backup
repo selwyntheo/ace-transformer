@@ -1,0 +1,166 @@
+import { test, expect, Page } from '@playwright/test'
+
+test.describe('UI EnhancedAddFieldModal - All Field Types', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:3000')
+    await page.waitForLoadState('domcontentloaded')
+    await page.waitForTimeout(1000)
+
+    // Setup: Select formats and upload file so FieldMappingInterface renders
+    // Step 1: Select source format (JSON) from dropdown
+    await page.getByLabel('Source Format').click()
+    await page.getByRole('option', { name: /json/i }).click()
+    await page.waitForTimeout(500)
+
+    // Step 2: Select target format (XML) from dropdown
+    await page.getByLabel('Target Format').click()
+    await page.getByRole('option', { name: /xml/i }).click()
+    await page.waitForTimeout(500)
+
+    // Step 3: Upload a JSON file or use sample data
+    // Use the "JSON Sample" button as it's easier than file upload for tests
+    const jsonSampleButton = page.getByRole('button', { name: /json sample/i })
+    await jsonSampleButton.click()
+    await page.waitForTimeout(1500) // Wait for sample data to load and FieldMappingInterface to render
+  })
+
+  const openAddFieldModal = async (page: Page) => {
+    const addFieldButton = page.getByRole('button', { name: /^add field$/i })
+    await addFieldButton.waitFor({ state: 'visible', timeout: 15000 })
+    await addFieldButton.click()
+    await page.waitForTimeout(500)
+  }
+
+  test('UI-FT-1: Create SIMPLE field', async ({ page }) => {
+    await openAddFieldModal(page)
+
+    // Fill field details
+    await page.getByLabel(/target field name/i).fill('userName')
+    
+    // Field type should be SIMPLE by default - verify
+    const fieldTypeSelect = page.getByLabel(/field type/i)
+    const currentValue = await fieldTypeSelect.inputValue()
+    expect(currentValue).toBe('SIMPLE')
+    
+    // Fill source field
+    await page.getByLabel(/source field name/i).fill('user.name')
+
+    // Add field
+    await page.getByRole('button', { name: /^add field$/i }).click()
+    await page.waitForTimeout(500)
+
+    // Verify success
+    await expect(page.getByText(/added field.*userName/i)).toBeVisible({ timeout: 5000 })
+
+    console.log('✓ SIMPLE field created successfully')
+  })
+
+  test('UI-FT-2: Create COMPUTED field with UUID', async ({ page }) => {
+    await openAddFieldModal(page)
+
+    await page.getByLabel(/target field name/i).fill('userId')
+    
+    // Select COMPUTED type
+    await page.getByLabel(/field type/i).click()
+    await page.waitForTimeout(300)
+    await page.getByRole('option', { name: /computed field/i }).click()
+    await page.waitForTimeout(500)
+
+    // Verify computed type dropdown appears
+    await expect(page.getByLabel(/computed type/i)).toBeVisible()
+    
+    // UUID should be default, but let's select it explicitly
+    await page.getByLabel(/computed type/i).click()
+    await page.waitForTimeout(300)
+    const uuidOption = page.getByRole('option', { name: /^UUID$/i }).first()
+    await uuidOption.click()
+    await page.waitForTimeout(300)
+
+    // Add field
+    await page.getByRole('button', { name: /^add field$/i }).click()
+    await page.waitForTimeout(500)
+
+    await expect(page.getByText(/added field.*userId/i)).toBeVisible({ timeout: 5000 })
+
+    console.log('✓ COMPUTED field with UUID created successfully')
+  })
+
+  test('UI-FT-3: Create KEY_VALUE_PAIR field', async ({ page }) => {
+    await openAddFieldModal(page)
+
+    await page.getByLabel(/target field name/i).fill('metadata')
+    
+    // Select KEY_VALUE_PAIR type
+    await page.getByLabel(/field type/i).click()
+    await page.waitForTimeout(300)
+    await page.getByRole('option', { name: /key.*value.*pair/i }).click()
+    await page.waitForTimeout(500)
+
+    // Verify key/value field name inputs appear
+    await expect(page.getByLabel(/key field name/i)).toBeVisible()
+    await expect(page.getByLabel(/value field name/i)).toBeVisible()
+
+    // Fill source field
+    await page.getByLabel(/source field name/i).fill('metadata')
+
+    await page.getByRole('button', { name: /^add field$/i }).click()
+    await page.waitForTimeout(500)
+
+    await expect(page.getByText(/added field.*metadata/i)).toBeVisible({ timeout: 5000 })
+
+    console.log('✓ KEY_VALUE_PAIR field created successfully')
+  })
+
+  test('UI-FT-4: Field type switching updates UI correctly', async ({ page }) => {
+    await openAddFieldModal(page)
+
+    // Start with SIMPLE
+    const fieldTypeSelect = page.getByLabel(/field type/i)
+    expect(await fieldTypeSelect.inputValue()).toBe('SIMPLE')
+    await expect(page.getByLabel(/computed type/i)).not.toBeVisible()
+
+    // Switch to COMPUTED
+    await fieldTypeSelect.click()
+    await page.waitForTimeout(300)
+    await page.getByRole('option', { name: /computed field/i }).click()
+    await page.waitForTimeout(500)
+    await expect(page.getByLabel(/computed type/i)).toBeVisible()
+
+    // Switch to KEY_VALUE_PAIR
+    await fieldTypeSelect.click()
+    await page.waitForTimeout(300)
+    await page.getByRole('option', { name: /key.*value.*pair/i }).click()
+    await page.waitForTimeout(500)
+    await expect(page.getByLabel(/key field name/i)).toBeVisible()
+
+    // Switch to NESTED_OBJECT
+    await fieldTypeSelect.click()
+    await page.waitForTimeout(300)
+    await page.getByRole('option', { name: /nested object/i }).click()
+    await page.waitForTimeout(500)
+    await expect(page.getByText(/tree structure builder/i)).toBeVisible()
+
+    console.log('✓ Field type switching updates UI correctly')
+  })
+
+  test('UI-FT-5: Multiple fields can be added sequentially', async ({ page }) => {
+    const fieldsToAdd = [
+      { name: 'field1', source: 'f1' },
+      { name: 'field2', source: 'f2' },
+      { name: 'field3', source: 'f3' }
+    ]
+
+    for (const field of fieldsToAdd) {
+      await openAddFieldModal(page)
+      await page.getByLabel(/target field name/i).fill(field.name)
+      await page.getByLabel(/source field name/i).fill(field.source)
+      await page.getByRole('button', { name: /^add field$/i }).click()
+      await page.waitForTimeout(800)
+    }
+
+    // Verify last field was added
+    await expect(page.getByText(/added field.*field3/i)).toBeVisible({ timeout: 5000 })
+
+    console.log('✓ Multiple fields added sequentially')
+  })
+})

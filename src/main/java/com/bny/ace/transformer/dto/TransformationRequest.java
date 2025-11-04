@@ -18,7 +18,7 @@ public class TransformationRequest {
     @NotNull(message = "Target format is required")
     private DataFormat targetFormat;
 
-    private Long mappingConfigurationId;
+    private String mappingConfigurationId;
 
     // Constructors
     public TransformationRequest() {}
@@ -29,7 +29,7 @@ public class TransformationRequest {
         this.targetFormat = targetFormat;
     }
 
-    public TransformationRequest(String inputData, DataFormat sourceFormat, DataFormat targetFormat, Long mappingConfigurationId) {
+    public TransformationRequest(String inputData, DataFormat sourceFormat, DataFormat targetFormat, String mappingConfigurationId) {
         this.inputData = inputData;
         this.sourceFormat = sourceFormat;
         this.targetFormat = targetFormat;
@@ -61,11 +61,11 @@ public class TransformationRequest {
         this.targetFormat = targetFormat;
     }
 
-    public Long getMappingConfigurationId() {
+    public String getMappingConfigurationId() {
         return mappingConfigurationId;
     }
 
-    public void setMappingConfigurationId(Long mappingConfigurationId) {
+    public void setMappingConfigurationId(String mappingConfigurationId) {
         this.mappingConfigurationId = mappingConfigurationId;
     }
 

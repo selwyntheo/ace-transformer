@@ -23,6 +23,10 @@ import {
   ExpandMore as ExpandMoreIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
+  AccountTree as AccountTreeIcon,
+  CheckCircle as CheckCircleIcon,
+  Info as InfoIcon,
+  BarChart as BarChartIcon,
 } from '@mui/icons-material'
 import type { FieldMapping } from '../services/api'
 
@@ -32,9 +36,10 @@ interface EnhancedAddFieldModalProps {
   onAdd: (field: FieldMapping) => void
   parentField?: string
   nestingLevel?: number
+  existingFields?: FieldMapping[]
 }
 
-type FieldType = 'SIMPLE' | 'NESTED_OBJECT' | 'COMPUTED' | 'KEY_VALUE_PAIR'
+type FieldType = 'SIMPLE' | 'NESTED_OBJECT' | 'COMPUTED' | 'KEY_VALUE_PAIR' | 'MANY_TO_ONE'
 type ComputedType = 'UUID' | 'TIMESTAMP' | 'TIMESTAMP_ISO' | 'DATE' | 'COUNT' | 'INCREMENT' | 'CONSTANT' | 'RANDOM_STRING' | 'RANDOM_NUMBER'
 
 const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
@@ -43,6 +48,7 @@ const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
   onAdd,
   parentField,
   nestingLevel = 0,
+  existingFields = [],
 }) => {
   const [fieldName, setFieldName] = useState('')
   const [sourceField, setSourceField] = useState('')
@@ -51,11 +57,39 @@ const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
   const [transformationRule, setTransformationRule] = useState('')
   const [keyFieldName, setKeyFieldName] = useState('key')
   const [valueFieldName, setValueFieldName] = useState('value')
+  const [aggregationField, setAggregationField] = useState('')
+  const [groupByFields, setGroupByFields] = useState<string[]>([])
   const [children, setChildren] = useState<FieldMapping[]>([])
   const [childFieldName, setChildFieldName] = useState('')
   const [childSourceField, setChildSourceField] = useState('')
   const [childFieldType, setChildFieldType] = useState<FieldType>('SIMPLE')
   const [childComputedType, setChildComputedType] = useState<ComputedType>('UUID')
+  const [specifiedNestingLevel, setSpecifiedNestingLevel] = useState(nestingLevel + 1)
+  const [selectedParentPath, setSelectedParentPath] = useState<string>(parentField || '')
+
+  // Build hierarchical field tree for parent selection
+  const buildFieldTree = (fields: FieldMapping[], prefix = ''): Array<{ path: string; label: string; level: number }> => {
+    const tree: Array<{ path: string; label: string; level: number }> = []
+    
+    fields.forEach(field => {
+      const path = prefix ? `${prefix}.${field.targetField}` : field.targetField
+      const level = field.nestingLevel || 0
+      
+      tree.push({
+        path,
+        label: `${'  '.repeat(level)}${field.targetField} (L${level})`,
+        level
+      })
+      
+      if (field.children && field.children.length > 0) {
+        tree.push(...buildFieldTree(field.children, path))
+      }
+    })
+    
+    return tree
+  }
+
+  const fieldTree = buildFieldTree(existingFields)
 
   const handleClose = () => {
     resetForm()
@@ -70,21 +104,28 @@ const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
     setTransformationRule('')
     setKeyFieldName('key')
     setValueFieldName('value')
+    setAggregationField('')
+    setGroupByFields([])
     setChildren([])
     setChildFieldName('')
     setChildSourceField('')
     setChildFieldType('SIMPLE')
     setChildComputedType('UUID')
+    setSpecifiedNestingLevel(nestingLevel + 1)
+    setSelectedParentPath(parentField || '')
   }
 
   const handleAdd = () => {
+    // Determine the effective parent field
+    const effectiveParent = selectedParentPath || parentField
+    
     const newField: FieldMapping = {
       sourceField: sourceField || fieldName,
       targetField: fieldName,
       fieldType,
-      isNested: parentField !== undefined,
-      parentField,
-      nestingLevel,
+      isNested: effectiveParent !== undefined || (fieldType === 'NESTED_OBJECT' && specifiedNestingLevel > 0),
+      parentField: effectiveParent,
+      nestingLevel: fieldType === 'NESTED_OBJECT' ? specifiedNestingLevel : nestingLevel,
     }
 
     if (fieldType === 'COMPUTED') {
@@ -96,6 +137,9 @@ const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
       newField.isKeyValuePair = true
       newField.keyFieldName = keyFieldName
       newField.valueFieldName = valueFieldName
+    } else if (fieldType === 'MANY_TO_ONE') {
+      newField.aggregationField = aggregationField
+      newField.groupByFields = groupByFields
     } else if (transformationRule) {
       newField.transformationRule = transformationRule
     }
@@ -113,7 +157,7 @@ const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
       fieldType: childFieldType,
       isNested: true,
       parentField: fieldName,
-      nestingLevel: nestingLevel + 1,
+      nestingLevel: specifiedNestingLevel + 1,
     }
 
     if (childFieldType === 'COMPUTED') {
@@ -169,7 +213,83 @@ const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
             helperText="The name of the field in the target format"
           />
 
-          {/* Field Type Selection */}
+          {/* Parent Node Selector - for building tree structure */}
+          {fieldTree.length > 0 && fieldType === 'NESTED_OBJECT' && (
+            <Box sx={{ 
+              border: '1px solid',
+              borderColor: 'primary.main',
+              borderRadius: 1,
+              p: 2,
+              backgroundColor: 'action.hover'
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                <AccountTreeIcon color="primary" />
+                <Typography variant="subtitle2" fontWeight="bold">
+                  Tree Structure Builder
+                </Typography>
+              </Box>
+              <FormControl fullWidth>
+                <InputLabel>Parent Node</InputLabel>
+                <Select
+                  value={selectedParentPath}
+                  onChange={(e) => {
+                    const selected = e.target.value
+                    setSelectedParentPath(selected)
+                    
+                    // Auto-calculate nesting level based on parent
+                    if (selected) {
+                      const parentNode = fieldTree.find(node => node.path === selected)
+                      if (parentNode) {
+                        setSpecifiedNestingLevel(parentNode.level + 1)
+                      }
+                    } else {
+                      setSpecifiedNestingLevel(nestingLevel + 1)
+                    }
+                  }}
+                  label="Parent Node"
+                >
+                  <MenuItem value="">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Chip label="L0" size="small" color="default" />
+                      <em>None (Root Level)</em>
+                    </Box>
+                  </MenuItem>
+                  {fieldTree.map((node) => (
+                    <MenuItem key={node.path} value={node.path}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Chip label={`L${node.level}`} size="small" color="primary" variant="outlined" />
+                        <Typography sx={{ fontFamily: 'monospace' }}>
+                          {node.label.trim()}
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Box sx={{ 
+                mt: 1.5,
+                p: 1,
+                backgroundColor: selectedParentPath ? 'success.light' : 'info.light',
+                borderRadius: 1,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 1
+              }}>
+                {selectedParentPath ? (
+                  <CheckCircleIcon sx={{ fontSize: '1rem', mt: 0.2 }} />
+                ) : (
+                  <InfoIcon sx={{ fontSize: '1rem', mt: 0.2 }} />
+                )}
+                <Typography variant="caption" color="text.secondary">
+                  {selectedParentPath 
+                    ? `Field will be nested under: ${selectedParentPath.split('.').pop()} (Level ${specifiedNestingLevel})`
+                    : 'Select a parent node to nest this field within an existing structure. The field will automatically be assigned the correct nesting level.'}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+
+          {/* Source Field Name */}
           <FormControl fullWidth>
             <InputLabel>Field Type</InputLabel>
             <Select
@@ -181,6 +301,7 @@ const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
               <MenuItem value="NESTED_OBJECT">Nested Object</MenuItem>
               <MenuItem value="COMPUTED">Computed/Generated Field</MenuItem>
               <MenuItem value="KEY_VALUE_PAIR">Key/Value Pair</MenuItem>
+              <MenuItem value="MANY_TO_ONE">Many-to-One Aggregation</MenuItem>
             </Select>
           </FormControl>
 
@@ -260,9 +381,35 @@ const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
           {/* Nested Object Configuration */}
           {fieldType === 'NESTED_OBJECT' && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Define child fields for this nested object:
-              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ flex: 1 }}>
+                  Define child fields for this nested object:
+                </Typography>
+                <TextField
+                  label="Nesting Level"
+                  type="number"
+                  value={specifiedNestingLevel}
+                  onChange={(e) => setSpecifiedNestingLevel(Number(e.target.value))}
+                  sx={{ width: '150px' }}
+                  inputProps={{ min: 0, max: 10 }}
+                  size="small"
+                  helperText={`Current: Level ${specifiedNestingLevel}`}
+                />
+              </Box>
+
+              <Box
+                sx={{
+                  p: 1.5,
+                  bgcolor: 'primary.light',
+                  borderRadius: 1,
+                  color: 'primary.contrastText',
+                }}
+              >
+                <Typography variant="body2">
+                  💡 Nesting Level {specifiedNestingLevel}: This field will be nested at level {specifiedNestingLevel} in the output structure.
+                  Child fields will be at level {specifiedNestingLevel + 1}.
+                </Typography>
+              </Box>
 
               {/* Child Fields List */}
               {children.length > 0 && (
@@ -279,6 +426,12 @@ const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
                         borderRadius: 1,
                       }}
                     >
+                      <Chip
+                        label={`L${child.nestingLevel}`}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
                       <Chip
                         label={child.fieldType}
                         size="small"
@@ -411,6 +564,59 @@ const EnhancedAddFieldModal: React.FC<EnhancedAddFieldModalProps> = ({
                 <Typography variant="body2">
                   Converts an object/map into an array of key-value pair objects.
                   Example: {`{ "a": 1, "b": 2 }`} → {`[{ ${keyFieldName}: "a", ${valueFieldName}: 1 }, ...]`}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+
+          {/* Many-to-One Aggregation Configuration */}
+          {fieldType === 'MANY_TO_ONE' && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField
+                label="Source Array Field"
+                value={sourceField}
+                onChange={(e) => setSourceField(e.target.value)}
+                fullWidth
+                required
+                helperText="Path to the source array (e.g., 'accounts' or 'data.accounts')"
+              />
+              <TextField
+                label="Aggregation Field"
+                value={aggregationField}
+                onChange={(e) => setAggregationField(e.target.value)}
+                fullWidth
+                required
+                helperText="Field to collect into an array (e.g., 'accountId')"
+              />
+              <TextField
+                label="Group By Fields (comma-separated)"
+                value={groupByFields.join(', ')}
+                onChange={(e) => setGroupByFields(e.target.value.split(',').map(f => f.trim()).filter(f => f))}
+                fullWidth
+                required
+                helperText="Fields to group by (e.g., 'sourceSystem, fromDate, toDate')"
+              />
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: 'success.light',
+                  borderRadius: 1,
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <BarChartIcon sx={{ fontSize: '1.2rem' }} />
+                  Many-to-One Aggregation
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Groups array elements by common fields and collects the aggregation field into an array.
+                </Typography>
+                <Typography variant="caption" component="div" sx={{ fontFamily: 'monospace', whiteSpace: 'pre-line' }}>
+                  <strong>Example Input:</strong>
+                  {`[\n  { "accountId": "66676", "sourceSystem": "KAI", "fromDate": "2025-11-02" },\n  { "accountId": "66677", "sourceSystem": "KAI", "fromDate": "2025-11-02" }\n]`}
+                </Typography>
+                <Typography variant="caption" component="div" sx={{ fontFamily: 'monospace', whiteSpace: 'pre-line', mt: 1 }}>
+                  <strong>Output:</strong>
+                  {`[\n  { "accountId": ["66676", "66677"], "sourceSystem": "KAI", "fromDate": "2025-11-02" }\n]`}
                 </Typography>
               </Box>
             </Box>

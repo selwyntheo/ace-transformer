@@ -1,0 +1,167 @@
+import { test, expect, Page } from '@playwright/test'
+
+test.describe('UI Tree Structure Builder - EnhancedAddFieldModal', () => {
+  test.beforeEach(async ({ page }) => {
+    // Navigate to the application
+    await page.goto('http://localhost:3000')
+    await page.waitForLoadState('domcontentloaded')
+    await page.waitForTimeout(1000)
+
+    // Setup: Select formats and load sample data so FieldMappingInterface renders
+    // Step 1: Select source format (JSON) from dropdown
+    await page.getByLabel('Source Format').click()
+    await page.getByRole('option', { name: /json/i }).click()
+    await page.waitForTimeout(500)
+
+    // Step 2: Select target format (XML) from dropdown
+    await page.getByLabel('Target Format').click()
+    await page.getByRole('option', { name: /xml/i }).click()
+    await page.waitForTimeout(500)
+
+    // Step 3: Load sample JSON data
+    const jsonSampleButton = page.getByRole('button', { name: /json sample/i })
+    await jsonSampleButton.click()
+    await page.waitForTimeout(1500) // Wait for sample data and FieldMappingInterface to render
+  })
+
+  // Helper function to open the Add Field modal
+  const openAddFieldModal = async (page: Page) => {
+    const addFieldButton = page.getByRole('button', { name: /^add field$/i })
+    await addFieldButton.waitFor({ state: 'visible', timeout: 15000 })
+    await addFieldButton.click()
+    await page.waitForTimeout(500)
+  }
+
+  test('UI-1: Modal opens and displays basic fields', async ({ page }) => {
+    await openAddFieldModal(page)
+
+    // Verify modal is open
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByText(/add new field/i)).toBeVisible()
+
+    // Verify basic fields are present
+    await expect(page.getByLabel('Target Field Name')).toBeVisible()
+    await expect(page.getByText('Field Type').first()).toBeVisible() // Label text exists
+    await expect(page.locator('[role="combobox"]').first()).toBeVisible() // Select dropdown exists
+    
+    console.log('✓ Modal opens successfully with basic fields')
+  })
+
+  test('UI-2: Tree Structure Builder appears for NESTED_OBJECT type', async ({ page }) => {
+    await openAddFieldModal(page)
+
+    // Initially, Tree Structure Builder should not be visible
+    const treeBuilderText = page.getByText(/tree structure builder/i)
+    await expect(treeBuilderText).not.toBeVisible()
+
+    // Click on Field Type dropdown (first combobox in modal)
+    await page.locator('[role="combobox"]').first().click()
+    await page.waitForTimeout(500)
+    
+    // Select "Nested Object Field"
+    await page.getByRole('option', { name: /nested object/i }).click()
+    await page.waitForTimeout(500)
+
+    // Now Tree Structure Builder should be visible
+    await expect(treeBuilderText).toBeVisible()
+    
+    // Verify parent node selector appears
+    await expect(page.getByText('Parent Node')).toBeVisible()
+
+    console.log('✓ Tree Structure Builder appears for NESTED_OBJECT type')
+  })
+
+  test('UI-3: Create root level nested field', async ({ page }) => {
+    await openAddFieldModal(page)
+
+    // Fill in field details
+    await page.getByLabel('Target Field Name').fill('Organization')
+    
+    // Select NESTED_OBJECT type
+    await page.getByLabel('Field Type').click()
+    await page.waitForTimeout(300)
+    await page.getByRole('option', { name: /nested object/i }).click()
+    await page.waitForTimeout(500)
+
+    // Fill source field - label is "Source Field Path" for nested objects
+    await page.getByLabel('Source Field Path').fill('organization')
+
+    // Click Add Field button (the one in modal, not the main page)
+    const addButtons = await page.getByRole('button', { name: /^add field$/i }).all()
+    await addButtons[addButtons.length - 1].click() // Last one is in modal
+    await page.waitForTimeout(500)
+
+    // Verify modal closes
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+
+    console.log('✓ Root level nested field created successfully')
+  })
+
+  test('UI-4: Create nested field with parent selection', async ({ page }) => {
+    // First, create root field "Organization"
+    await openAddFieldModal(page)
+    await page.getByLabel('Target Field Name').fill('Organization')
+    await page.getByLabel('Field Type').click()
+    await page.waitForTimeout(300)
+    await page.getByRole('option', { name: /nested object/i }).click()
+    await page.waitForTimeout(500)
+    await page.getByLabel('Source Field Path').fill('organization')
+    const addButtons1 = await page.getByRole('button', { name: /^add field$/i }).all()
+    await addButtons1[addButtons1.length - 1].click()
+    await page.waitForTimeout(1000)
+
+    // Now add child field "Departments"
+    await openAddFieldModal(page)
+    await page.getByLabel('Target Field Name').fill('Departments')
+    await page.getByLabel('Field Type').click()
+    await page.waitForTimeout(300)
+    await page.getByRole('option', { name: /nested object/i }).click()
+    await page.waitForTimeout(500)
+
+    // Open parent node dropdown
+    await page.getByLabel('Parent Node').click()
+    await page.waitForTimeout(500)
+
+    // Select "Organization" - it should be in the dropdown now
+    const orgOption = page.getByRole('option', { name: /organization.*L1/i })
+    await expect(orgOption).toBeVisible({ timeout: 5000 })
+    await orgOption.click()
+    await page.waitForTimeout(500)
+
+    // Verify auto-calculated nesting level (should be 2 for child of L1)
+    await expect(page.getByText(/level 2/i)).toBeVisible()
+
+    // Fill source field
+    await page.getByLabel('Source Field Path').fill('departments')
+
+    // Add field
+    const addButtons2 = await page.getByRole('button', { name: /^add field$/i }).all()
+    await addButtons2[addButtons2.length - 1].click()
+    await page.waitForTimeout(500)
+
+    // Verify modal closes
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+
+    console.log('✓ Nested field with parent selection created successfully')
+  })
+
+  test('UI-5: Cancel button closes modal without saving', async ({ page }) => {
+    await openAddFieldModal(page)
+
+    // Fill in some data
+    await page.getByLabel('Target Field Name').fill('TestField')
+    await page.getByLabel('Field Type').click()
+    await page.waitForTimeout(300)
+    await page.getByRole('option', { name: /nested object/i }).click()
+    await page.waitForTimeout(300)
+
+    // Click Cancel
+    await page.getByRole('button', { name: /cancel/i }).click()
+    await page.waitForTimeout(300)
+
+    // Verify modal closes
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+
+    console.log('✓ Cancel button works correctly')
+  })
+})

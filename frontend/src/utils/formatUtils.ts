@@ -26,8 +26,8 @@ export const FORMAT_DESCRIPTIONS: Record<FormatType, string> = {
 export const FORMAT_ICONS: Record<FormatType, string> = {
   JSON: '{ }',
   XML: '< >',
-  CSV: '📊',
-  TXT: '📄',
+  CSV: '[,]',
+  TXT: '[T]',
 }
 
 /**

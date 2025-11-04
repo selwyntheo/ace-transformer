@@ -1,22 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from    // Upload file
-    const file = new File([jsonContent], 'data.json', { type: 'application/json' })
-    const mockFileReader = {
-      readAsText: vi.fn(),
-      onload: null as any,
-      onerror: null as any,
-      result: jsonContent
-    }
-    vi.stubGlobal('FileReader', vi.fn(() => mockFileReader))
-
-    const fileInput = screen.getByRole('button').querySelector('input[type="file"]')
-    if (fileInput) {
-      await user.upload(fileInput as HTMLInputElement, file)
-      if (mockFileReader.onload) {
-        mockFileReader.onload({})
-      }
-    }y/user-event'
+import userEvent from '@testing-library/user-event'
 import { TransformationService } from '../../services/api'
 import QuickTransform from '../../pages/QuickTransform'
 
@@ -45,8 +29,8 @@ vi.mock('../../utils/formatUtils', () => ({
   FORMAT_ICONS: {
     JSON: '{}',
     XML: '</>',
-    CSV: '📊',
-    TXT: '📄'
+    CSV: '[,]',
+    TXT: '[T]'
   },
   FORMAT_EXTENSIONS: {
     JSON: ['.json'],

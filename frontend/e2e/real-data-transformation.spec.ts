@@ -13,7 +13,7 @@ const API_BASE_URL = 'http://localhost:8080/api/transform'
 test.describe('Real Data Transformation E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the application
-    await page.goto('http://localhost:5173')
+    await page.goto('http://localhost:3000')
     
     // Wait for the app to load
     await expect(page.locator('text=ACE Transformer')).toBeVisible({ timeout: 10000 })

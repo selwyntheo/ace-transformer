@@ -616,6 +616,7 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
                           )}
                         </Box>
                       }
+                      primaryTypographyProps={{ component: 'div' }}
                       secondary={
                         <Box>
                           <Typography variant="caption" color="textSecondary">
@@ -628,6 +629,7 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
                           )}
                         </Box>
                       }
+                      secondaryTypographyProps={{ component: 'div' }}
                     />
                     <Chip
                       size="small"
@@ -704,6 +706,7 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
                           )}
                         </Box>
                       }
+                      primaryTypographyProps={{ component: 'div' }}
                       secondary={field.description || field.type}
                       secondaryTypographyProps={{ variant: 'caption' }}
                     />
@@ -827,6 +830,7 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
         open={addFieldDialogOpen}
         onClose={() => setAddFieldDialogOpen(false)}
         onAdd={handleAddEnhancedField}
+        existingFields={mappings}
       />
 
       <Snackbar

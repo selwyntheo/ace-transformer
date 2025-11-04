@@ -27,6 +27,10 @@ public class FieldMappingRequest {
     private String keyFieldName;
     private String valueFieldName;
     
+    // Many-to-One mapping configuration
+    private String aggregationField;      // Field to aggregate into array
+    private List<String> groupByFields;   // Fields to group by (common fields)
+    
     // For nested objects - children fields
     private List<FieldMappingRequest> children;
     
@@ -35,7 +39,8 @@ public class FieldMappingRequest {
         SIMPLE,          // Regular field mapping
         NESTED_OBJECT,   // Nested object with children
         COMPUTED,        // Computed/generated field
-        KEY_VALUE_PAIR   // Key-value pair structure
+        KEY_VALUE_PAIR,  // Key-value pair structure
+        MANY_TO_ONE      // Many-to-one aggregation (group array elements)
     }
     
     public enum ComputedFieldType {
@@ -159,5 +164,21 @@ public class FieldMappingRequest {
 
     public void setChildren(List<FieldMappingRequest> children) {
         this.children = children;
+    }
+
+    public String getAggregationField() {
+        return aggregationField;
+    }
+
+    public void setAggregationField(String aggregationField) {
+        this.aggregationField = aggregationField;
+    }
+
+    public List<String> getGroupByFields() {
+        return groupByFields;
+    }
+
+    public void setGroupByFields(List<String> groupByFields) {
+        this.groupByFields = groupByFields;
     }
 }

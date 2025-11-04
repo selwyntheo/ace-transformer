@@ -37,8 +37,8 @@ vi.mock('../../utils/formatUtils', () => ({
   FORMAT_ICONS: {
     JSON: '{}',
     XML: '</>',
-    CSV: '📊',
-    TXT: '📄'
+    CSV: '[,]',
+    TXT: '[T]'
   },
   FORMAT_EXTENSIONS: {
     JSON: ['.json'],

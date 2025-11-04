@@ -10,7 +10,10 @@ import com.bny.ace.transformer.parser.AceJsonDataParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -105,14 +108,16 @@ public class AceTransformationService {
         Map<String, Object> mappedData = new HashMap<>();
         
         config.getFieldMappings().forEach(mapping -> {
-            Object sourceValue = data.get(mapping.getSourceField());
+            // Use getNestedValue to support nested paths and arrays
+            Object sourceValue = getNestedValue(data, mapping.getSourceField());
             if (sourceValue != null) {
                 // Apply transformation rule if specified
                 Object transformedValue = sourceValue;
                 if (mapping.getTransformationRule() != null && !mapping.getTransformationRule().isEmpty()) {
                     transformedValue = applyTransformationRule(sourceValue, mapping.getTransformationRule());
                 }
-                mappedData.put(mapping.getTargetField(), transformedValue);
+                // Use setNestedValue to support nested target paths
+                setNestedValue(mappedData, mapping.getTargetField(), transformedValue);
             }
         });
         
@@ -147,6 +152,11 @@ public class AceTransformationService {
                         
                     case KEY_VALUE_PAIR:
                         transformedValue = createKeyValuePair(mapping, data);
+                        setNestedValue(mappedData, mapping.getTargetField(), transformedValue);
+                        break;
+                    
+                    case MANY_TO_ONE:
+                        transformedValue = aggregateManyToOne(mapping, data);
                         setNestedValue(mappedData, mapping.getTargetField(), transformedValue);
                         break;
                         
@@ -308,6 +318,60 @@ public class AceTransformationService {
         }
         
         return new HashMap<>();
+    }
+
+    /**
+     * Aggregate array elements by grouping common fields and collecting aggregation field into array.
+     * Example: Transform [{accountId: "1", system: "KAI"}, {accountId: "2", system: "KAI"}]
+     *          to [{accountId: ["1", "2"], system: "KAI"}]
+     */
+    private Object aggregateManyToOne(FieldMappingRequest mapping, Map<String, Object> sourceData) {
+        if (mapping.getAggregationField() == null || mapping.getGroupByFields() == null || mapping.getGroupByFields().isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        // Get source array
+        Object sourceValue = getNestedValue(sourceData, mapping.getSourceField());
+        if (!(sourceValue instanceof java.util.List<?> sourceList)) {
+            return new ArrayList<>();
+        }
+        
+        // Group elements by groupByFields
+        Map<String, List<Object>> groupedData = new LinkedHashMap<>();
+        Map<String, Map<String, Object>> groupedCommonFields = new LinkedHashMap<>();
+        
+        for (Object item : sourceList) {
+            if (!(item instanceof Map<?, ?> itemMap)) {
+                continue;
+            }
+            
+            // Build group key from groupByFields
+            StringBuilder groupKeyBuilder = new StringBuilder();
+            Map<String, Object> commonFields = new HashMap<>();
+            
+            for (String groupField : mapping.getGroupByFields()) {
+                Object fieldValue = ((Map<?, ?>) itemMap).get(groupField);
+                groupKeyBuilder.append(fieldValue != null ? fieldValue.toString() : "null").append("|");
+                commonFields.put(groupField, fieldValue);
+            }
+            
+            String groupKey = groupKeyBuilder.toString();
+            
+            // Add aggregation field value to group
+            Object aggregationValue = ((Map<?, ?>) itemMap).get(mapping.getAggregationField());
+            groupedData.computeIfAbsent(groupKey, k -> new ArrayList<>()).add(aggregationValue);
+            groupedCommonFields.putIfAbsent(groupKey, commonFields);
+        }
+        
+        // Build result array
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, List<Object>> entry : groupedData.entrySet()) {
+            Map<String, Object> resultItem = new HashMap<>(groupedCommonFields.get(entry.getKey()));
+            resultItem.put(mapping.getAggregationField(), entry.getValue());
+            result.add(resultItem);
+        }
+        
+        return result;
     }
 
     private Object getNestedValue(Map<String, Object> data, String fieldPath) {

@@ -26,7 +26,7 @@ export interface FieldMapping {
   sourceField: string
   targetField: string
   transformationRule?: string
-  fieldType?: 'SIMPLE' | 'NESTED_OBJECT' | 'COMPUTED' | 'KEY_VALUE_PAIR'
+  fieldType?: 'SIMPLE' | 'NESTED_OBJECT' | 'COMPUTED' | 'KEY_VALUE_PAIR' | 'MANY_TO_ONE'
   computedType?: 'UUID' | 'TIMESTAMP' | 'TIMESTAMP_ISO' | 'DATE' | 'COUNT' | 'INCREMENT' | 'CONSTANT' | 'RANDOM_STRING' | 'RANDOM_NUMBER'
   isNested?: boolean
   parentField?: string
@@ -34,6 +34,8 @@ export interface FieldMapping {
   isKeyValuePair?: boolean
   keyFieldName?: string
   valueFieldName?: string
+  aggregationField?: string
+  groupByFields?: string[]
   children?: FieldMapping[]
 }
 

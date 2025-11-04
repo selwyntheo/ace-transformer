@@ -158,22 +158,7 @@ const AdvancedTransform: React.FC = () => {
         inputData: state.sourceData!,
         sourceFormat: state.sourceFormat!,
         targetFormat: state.targetFormat!,
-        mappingRules: state.fieldMappings,
-        advancedOptions: {
-          transformationRules: state.advancedSettings.transformationRules,
-          validationRules: state.advancedSettings.validationRules,
-          validateOnTransform: state.advancedSettings.validateOnTransform,
-          strictValidation: state.advancedSettings.strictValidation,
-          continueOnError: state.advancedSettings.continueOnError,
-          maxErrors: state.advancedSettings.maxErrors,
-          errorReporting: state.advancedSettings.errorReporting,
-          preserveNullValues: state.advancedSettings.preserveNullValues,
-          preserveEmptyStrings: state.advancedSettings.preserveEmptyStrings,
-          prettifyOutput: state.advancedSettings.prettifyOutput,
-          includeMetadata: state.advancedSettings.includeMetadata,
-          batchSize: state.advancedSettings.batchSize,
-          enableParallelProcessing: state.advancedSettings.enableParallelProcessing,
-        },
+        mappingRules: state.fieldMappings
       })
 
       console.log('Transformation successful:', response)

@@ -17,13 +17,13 @@ public class AceMappingConfigurationService {
 
     // Simple in-memory storage for demonstration
     private List<MappingConfiguration> configurations = new ArrayList<>();
-    private Long nextId = 1L;
+    private String nextId = "1";
 
     public List<MappingConfiguration> findAll() {
         return new ArrayList<>(configurations);
     }
 
-    public MappingConfiguration findById(Long id) {
+    public MappingConfiguration findById(String id) {
         return configurations.stream()
                 .filter(config -> config.getId().equals(id))
                 .findFirst()
@@ -32,7 +32,9 @@ public class AceMappingConfigurationService {
 
     public MappingConfiguration save(MappingConfiguration configuration) {
         if (configuration.getId() == null) {
-            configuration.setId(nextId++);
+            configuration.setId(nextId);
+            int currentId = Integer.parseInt(nextId);
+            nextId = String.valueOf(currentId + 1);
             configurations.add(configuration);
         } else {
             // Update existing
@@ -47,7 +49,7 @@ public class AceMappingConfigurationService {
         return configuration;
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(String id) {
         configurations.removeIf(config -> config.getId().equals(id));
     }
 }
