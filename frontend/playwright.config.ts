@@ -19,6 +19,13 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // Provide HTTP authentication credentials if needed
+    httpCredentials: {
+      username: 'admin',
+      password: 'admin',
+    },
+    // Ignore HTTPS errors
+    ignoreHTTPSErrors: true,
   },
 
   projects: [

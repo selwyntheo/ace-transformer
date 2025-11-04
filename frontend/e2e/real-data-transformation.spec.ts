@@ -7,7 +7,8 @@ import * as path from 'path'
  * Tests the complete transformation workflow with actual test data files
  */
 
-const TEST_DATA_DIR = path.join(__dirname, '../../test-data')
+// ES Module compatible way to get __dirname
+const TEST_DATA_DIR = path.resolve('./test-data')
 const API_BASE_URL = 'http://localhost:8080/api/transform'
 
 test.describe('Real Data Transformation E2E Tests', () => {

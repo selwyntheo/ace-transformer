@@ -44,9 +44,9 @@ test('should map 5 fields from source to target', async ({ page }) => {
     }
   });
   
-  // Check for auth dialogs
+  // ⚠️ HANDLE AUTHENTICATION DIALOG - dismiss any auth popup
   page.on('dialog', async dialog => {
-    console.log(`[DIALOG] ${dialog.type()}: ${dialog.message()}`);
+    console.log(`[DIALOG DETECTED] ${dialog.type()}: ${dialog.message()}`);
     await dialog.dismiss();
   });
   

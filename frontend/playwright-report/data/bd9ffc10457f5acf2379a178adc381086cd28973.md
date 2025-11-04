@@ -1,0 +1,109 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e6]
+      - generic [ref=e8]: AceTransformer
+      - paragraph [ref=e9]: Universal Data Transformation Platform
+  - generic [ref=e12]:
+    - generic [ref=e13]:
+      - heading "Advanced Transform" [level=1] [ref=e14]:
+        - img [ref=e15]
+        - text: Advanced Transform
+      - paragraph [ref=e17]: Transform data with advanced field-level mapping and custom rules
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - heading "Format Selection" [level=6] [ref=e21]
+          - generic [ref=e22]:
+            - generic [ref=e24]:
+              - generic: Source Format
+              - generic [ref=e25]:
+                - combobox "Source Format" [ref=e26] [cursor=pointer]
+                - textbox
+                - img
+                - group:
+                  - generic: Source Format
+            - generic [ref=e28]:
+              - generic: Target Format
+              - generic [ref=e29]:
+                - combobox "Target Format" [ref=e30] [cursor=pointer]
+                - textbox
+                - img
+                - group:
+                  - generic: Target Format
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - heading "Upload File" [level=6] [ref=e33]
+            - generic [ref=e34] [cursor=pointer]:
+              - button "Choose File" [ref=e35]
+              - generic [ref=e36]:
+                - img [ref=e37]
+                - heading "Drag & drop a file here, or click to browse" [level=6] [ref=e39]
+                - paragraph [ref=e40]: Supports JSON, XML, CSV, and TXT files up to 10 MB
+                - button "Browse Files" [ref=e41]:
+                  - img [ref=e43]
+                  - text: Browse Files
+          - generic [ref=e45]:
+            - separator [ref=e46]
+            - heading "Or try with sample data:" [level=6] [ref=e47]
+            - generic [ref=e48]:
+              - button "JSON Sample" [ref=e49] [cursor=pointer]
+              - button "XML Sample" [ref=e50] [cursor=pointer]
+              - button "CSV Sample" [ref=e51] [cursor=pointer]
+              - button "TXT Sample" [ref=e52] [cursor=pointer]
+      - generic [ref=e54]:
+        - img [ref=e55]
+        - heading "Field Mapping Interface" [level=6] [ref=e57]
+        - paragraph [ref=e58]: Select formats and upload data to configure field mappings
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - img [ref=e61]
+          - heading "Advanced Options" [level=6] [ref=e63]
+          - generic [ref=e65]: 0 rules
+        - generic [ref=e66]:
+          - heading "Transformation Rules 0" [level=3] [ref=e67]:
+            - button "Transformation Rules 0" [expanded] [ref=e68] [cursor=pointer]:
+              - generic [ref=e70]:
+                - img [ref=e71]
+                - paragraph [ref=e73]: Transformation Rules
+                - generic [ref=e75]: "0"
+              - img [ref=e77]
+          - region [ref=e82]:
+            - generic [ref=e84]:
+              - paragraph [ref=e85]: Define custom transformation rules to modify data during conversion
+              - button "Add Transformation Rule" [ref=e86] [cursor=pointer]:
+                - img [ref=e88]
+                - text: Add Transformation Rule
+        - heading "Validation & Security 0" [level=3] [ref=e91]:
+          - button "Validation & Security 0" [ref=e92] [cursor=pointer]:
+            - generic [ref=e94]:
+              - img [ref=e95]
+              - paragraph [ref=e97]: Validation & Security
+              - generic [ref=e99]: "0"
+            - img [ref=e101]
+        - heading "Performance Settings" [level=3] [ref=e104]:
+          - button "Performance Settings" [ref=e105] [cursor=pointer]:
+            - generic [ref=e107]:
+              - img [ref=e108]
+              - paragraph [ref=e110]: Performance Settings
+            - img [ref=e112]
+        - heading "Output Settings" [level=3] [ref=e115]:
+          - button "Output Settings" [ref=e116] [cursor=pointer]:
+            - paragraph [ref=e118]: Output Settings
+            - img [ref=e120]
+        - generic [ref=e122]:
+          - heading "Error Handling" [level=3] [ref=e123]:
+            - button "Error Handling" [ref=e124] [cursor=pointer]:
+              - generic [ref=e126]:
+                - img [ref=e127]
+                - paragraph [ref=e129]: Error Handling
+              - img [ref=e131]
+          - generic: Maximum Errors
+        - heading "Advanced Features" [level=3] [ref=e134]:
+          - button "Advanced Features" [ref=e135] [cursor=pointer]:
+            - paragraph [ref=e137]: Advanced Features
+            - img [ref=e139]
+```
