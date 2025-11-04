@@ -1,0 +1,46 @@
+{
+  "customerId": "",
+  "fullName": "",
+  "contactInfo": {
+    "primaryEmail": "",
+    "phoneNumber": "",
+    "mailingAddress": ""
+  },
+  "profile": {
+    "displayName": "",
+    "memberSince": "",
+    "accountType": "",
+    "statusText": ""
+  },
+  "employmentDetails": {
+    "employer": "",
+    "jobTitle": "",
+    "annualIncome": 0
+  },
+  "purchaseHistory": [
+    {
+      "transactionId": "",
+      "item": "",
+      "qty": 0,
+      "amount": 0,
+      "date": "",
+      "orderStatus": ""
+    }
+  ],
+  "metrics": {
+    "totalOrders": 0,
+    "totalSpent": 0,
+    "averageOrderValue": 0,
+    "rewardPoints": 0
+  },
+  "settings": {
+    "preferredLanguage": "",
+    "timeZone": "",
+    "marketingOptIn": false
+  },
+  "metadata": {
+    "recordId": "",
+    "lastUpdated": "",
+    "dataSource": "migration"
+  }
+}

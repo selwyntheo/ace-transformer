@@ -121,31 +121,189 @@ public class AceTransformationService {
 
     private Map<String, Object> applyDirectFieldMappings(Map<String, Object> data, java.util.List<FieldMappingRequest> mappingRules) {
         Map<String, Object> mappedData = new HashMap<>();
+        java.util.concurrent.atomic.AtomicInteger counter = new java.util.concurrent.atomic.AtomicInteger(1);
         
         if (mappingRules != null) {
             mappingRules.forEach(mapping -> {
-                Object sourceValue = getNestedValue(data, mapping.getSourceField());
-                if (sourceValue != null) {
-                    // Apply transformation rule if specified
-                    Object transformedValue = sourceValue;
-                    if (mapping.getTransformationRule() != null && !mapping.getTransformationRule().isEmpty()) {
-                        // If the source value is a list, apply transformation to each item
-                        if (sourceValue instanceof java.util.List<?> sourceList) {
-                            java.util.List<Object> transformedList = new java.util.ArrayList<>();
-                            for (Object item : sourceList) {
-                                transformedList.add(applyTransformationRule(item, mapping.getTransformationRule()));
+                Object transformedValue = null;
+                
+                // Handle different field types
+                switch (mapping.getFieldType()) {
+                    case COMPUTED:
+                        transformedValue = generateComputedValue(mapping.getComputedType(), 
+                                                                mapping.getTransformationRule(), 
+                                                                data, counter);
+                        setNestedValue(mappedData, mapping.getTargetField(), transformedValue);
+                        break;
+                        
+                    case NESTED_OBJECT:
+                        transformedValue = createNestedObject(mapping, data, counter);
+                        setNestedValue(mappedData, mapping.getTargetField(), transformedValue);
+                        break;
+                        
+                    case KEY_VALUE_PAIR:
+                        transformedValue = createKeyValuePair(mapping, data);
+                        setNestedValue(mappedData, mapping.getTargetField(), transformedValue);
+                        break;
+                        
+                    case SIMPLE:
+                    default:
+                        Object sourceValue = getNestedValue(data, mapping.getSourceField());
+                        if (sourceValue != null) {
+                            // Apply transformation rule if specified
+                            if (mapping.getTransformationRule() != null && !mapping.getTransformationRule().isEmpty()) {
+                                // If the source value is a list, apply transformation to each item
+                                if (sourceValue instanceof java.util.List<?> sourceList) {
+                                    java.util.List<Object> transformedList = new java.util.ArrayList<>();
+                                    for (Object item : sourceList) {
+                                        transformedList.add(applyTransformationRule(item, mapping.getTransformationRule()));
+                                    }
+                                    transformedValue = transformedList;
+                                } else {
+                                    transformedValue = applyTransformationRule(sourceValue, mapping.getTransformationRule());
+                                }
+                            } else {
+                                transformedValue = sourceValue;
                             }
-                            transformedValue = transformedList;
-                        } else {
-                            transformedValue = applyTransformationRule(sourceValue, mapping.getTransformationRule());
+                            setNestedValue(mappedData, mapping.getTargetField(), transformedValue);
                         }
-                    }
-                    setNestedValue(mappedData, mapping.getTargetField(), transformedValue);
+                        break;
                 }
             });
         }
         
         return mappedData;
+    }
+    
+    /**
+     * Generate computed field values based on type
+     */
+    private Object generateComputedValue(FieldMappingRequest.ComputedFieldType computedType, 
+                                        String rule, 
+                                        Map<String, Object> sourceData,
+                                        java.util.concurrent.atomic.AtomicInteger counter) {
+        if (computedType == null) {
+            return null;
+        }
+        
+        switch (computedType) {
+            case UUID:
+                return java.util.UUID.randomUUID().toString();
+                
+            case TIMESTAMP:
+                return System.currentTimeMillis();
+                
+            case TIMESTAMP_ISO:
+                return java.time.Instant.now().toString();
+                
+            case DATE:
+                return java.time.LocalDate.now().toString();
+                
+            case COUNT:
+                // Count items in source data if it's a collection
+                if (rule != null && !rule.isEmpty()) {
+                    Object value = getNestedValue(sourceData, rule);
+                    if (value instanceof java.util.List<?> list) {
+                        return list.size();
+                    } else if (value instanceof Map<?, ?> map) {
+                        return map.size();
+                    }
+                }
+                return 0;
+                
+            case INCREMENT:
+                return counter.getAndIncrement();
+                
+            case CONSTANT:
+                return rule != null ? rule : "";
+                
+            case RANDOM_STRING:
+                return java.util.UUID.randomUUID().toString().substring(0, 8);
+                
+            case RANDOM_NUMBER:
+                return new java.util.Random().nextInt(1000000);
+                
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * Create nested object from field mapping with children
+     */
+    private Map<String, Object> createNestedObject(FieldMappingRequest mapping, 
+                                                   Map<String, Object> sourceData,
+                                                   java.util.concurrent.atomic.AtomicInteger counter) {
+        Map<String, Object> nestedObject = new HashMap<>();
+        
+        if (mapping.getChildren() != null && !mapping.getChildren().isEmpty()) {
+            for (FieldMappingRequest child : mapping.getChildren()) {
+                Object childValue = null;
+                
+                if (child.getFieldType() == FieldMappingRequest.FieldType.COMPUTED) {
+                    childValue = generateComputedValue(child.getComputedType(), 
+                                                       child.getTransformationRule(), 
+                                                       sourceData, counter);
+                } else if (child.getFieldType() == FieldMappingRequest.FieldType.NESTED_OBJECT) {
+                    childValue = createNestedObject(child, sourceData, counter);
+                } else if (child.getFieldType() == FieldMappingRequest.FieldType.KEY_VALUE_PAIR) {
+                    childValue = createKeyValuePair(child, sourceData);
+                } else {
+                    // Simple field
+                    Object sourceValue = getNestedValue(sourceData, child.getSourceField());
+                    if (sourceValue != null) {
+                        if (child.getTransformationRule() != null && !child.getTransformationRule().isEmpty()) {
+                            childValue = applyTransformationRule(sourceValue, child.getTransformationRule());
+                        } else {
+                            childValue = sourceValue;
+                        }
+                    }
+                }
+                
+                if (childValue != null) {
+                    nestedObject.put(child.getTargetField(), childValue);
+                }
+            }
+        }
+        
+        return nestedObject;
+    }
+    
+    /**
+     * Create key-value pair structure
+     */
+    private Object createKeyValuePair(FieldMappingRequest mapping, Map<String, Object> sourceData) {
+        if (mapping.getKeyFieldName() == null || mapping.getValueFieldName() == null) {
+            return new HashMap<>();
+        }
+        
+        Object sourceValue = getNestedValue(sourceData, mapping.getSourceField());
+        
+        if (sourceValue instanceof Map<?, ?> sourceMap) {
+            // Convert map to array of key-value pairs
+            java.util.List<Map<String, Object>> pairs = new java.util.ArrayList<>();
+            sourceMap.forEach((key, value) -> {
+                Map<String, Object> pair = new HashMap<>();
+                pair.put(mapping.getKeyFieldName(), key);
+                pair.put(mapping.getValueFieldName(), value);
+                pairs.add(pair);
+            });
+            return pairs;
+        } else if (sourceValue instanceof java.util.List<?> sourceList) {
+            // If source is already a list, try to extract key-value structure
+            java.util.List<Map<String, Object>> pairs = new java.util.ArrayList<>();
+            for (Object item : sourceList) {
+                if (item instanceof Map<?, ?> itemMap) {
+                    Map<String, Object> pair = new HashMap<>();
+                    pair.put(mapping.getKeyFieldName(), itemMap.get(mapping.getKeyFieldName()));
+                    pair.put(mapping.getValueFieldName(), itemMap.get(mapping.getValueFieldName()));
+                    pairs.add(pair);
+                }
+            }
+            return pairs;
+        }
+        
+        return new HashMap<>();
     }
 
     private Object getNestedValue(Map<String, Object> data, String fieldPath) {

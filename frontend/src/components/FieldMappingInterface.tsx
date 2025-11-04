@@ -16,11 +16,6 @@ import {
   IconButton,
   Snackbar,
   Alert,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from '@mui/material'
 import {
   DataObject as DataObjectIcon,
@@ -34,6 +29,7 @@ import {
   Add as AddIcon,
   List as ListIcon,
 } from '@mui/icons-material'
+import EnhancedAddFieldModal from './EnhancedAddFieldModal'
 import type { FormatType, FieldMapping } from '../services/api'
 
 interface SourceField {
@@ -78,10 +74,27 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info')
   const [addFieldDialogOpen, setAddFieldDialogOpen] = useState(false)
-  const [newFieldName, setNewFieldName] = useState('')
-  const [newFieldType, setNewFieldType] = useState('string')
-  const [newFieldDescription, setNewFieldDescription] = useState('')
-  const [newFieldRequired, setNewFieldRequired] = useState(false)
+
+  // Add field from enhanced modal
+  const handleAddEnhancedField = (field: FieldMapping) => {
+    // Add to target fields display
+    const newTargetField: TargetField = {
+      name: field.targetField,
+      type: field.fieldType === 'NESTED_OBJECT' ? 'object' : 
+            field.fieldType === 'COMPUTED' ? 'computed' : 'string',
+      required: false,
+    }
+    setTargetFields(prev => [...prev, newTargetField])
+
+    // Add to mappings
+    const newMappings = [...mappings, field]
+    setMappings(newMappings)
+    onMappingChange(newMappings)
+
+    setSnackbarMessage(`Added field: ${field.targetField}`)
+    setSnackbarSeverity('success')
+    setSnackbarOpen(true)
+  }
 
   // Extract fields from source data
   const extractSourceFields = useCallback((data: string, format: FormatType): SourceField[] => {
@@ -301,43 +314,6 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
         return []
     }
   }, [])
-
-  // Add new target field
-  const addNewTargetField = () => {
-    if (!newFieldName.trim()) {
-      setSnackbarMessage('Field name is required')
-      setSnackbarSeverity('error')
-      setSnackbarOpen(true)
-      return
-    }
-
-    // Check if field already exists
-    if (targetFields.find(f => f.name === newFieldName.trim())) {
-      setSnackbarMessage('Field with this name already exists')
-      setSnackbarSeverity('error')
-      setSnackbarOpen(true)
-      return
-    }
-
-    const newField: TargetField = {
-      name: newFieldName.trim(),
-      type: newFieldType,
-      required: newFieldRequired,
-      description: newFieldDescription.trim() || undefined,
-    }
-
-    setTargetFields(prev => [...prev, newField])
-    setSnackbarMessage(`Added new target field: ${newField.name}`)
-    setSnackbarSeverity('success')
-    setSnackbarOpen(true)
-    
-    // Reset form
-    setNewFieldName('')
-    setNewFieldType('string')
-    setNewFieldDescription('')
-    setNewFieldRequired(false)
-    setAddFieldDialogOpen(false)
-  }
 
   // Remove target field
   const removeTargetField = (fieldName: string) => {
@@ -846,75 +822,12 @@ const FieldMappingInterface: React.FC<FieldMappingInterfaceProps> = ({
         </DialogActions>
       </Dialog>
 
-      {/* Add Target Field Dialog */}
-      <Dialog
+      {/* Enhanced Add Target Field Modal */}
+      <EnhancedAddFieldModal
         open={addFieldDialogOpen}
         onClose={() => setAddFieldDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Add New Target Field</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <TextField
-              label="Field Name"
-              value={newFieldName}
-              onChange={(e) => setNewFieldName(e.target.value)}
-              fullWidth
-              required
-              autoFocus
-            />
-            
-            <FormControl fullWidth>
-              <InputLabel>Field Type</InputLabel>
-              <Select
-                value={newFieldType}
-                onChange={(e) => setNewFieldType(e.target.value)}
-                label="Field Type"
-              >
-                <MenuItem value="string">String</MenuItem>
-                <MenuItem value="number">Number</MenuItem>
-                <MenuItem value="integer">Integer</MenuItem>
-                <MenuItem value="boolean">Boolean</MenuItem>
-                <MenuItem value="date">Date</MenuItem>
-                <MenuItem value="array">Array</MenuItem>
-                <MenuItem value="object">Object</MenuItem>
-              </Select>
-            </FormControl>
-
-            <TextField
-              label="Description (Optional)"
-              value={newFieldDescription}
-              onChange={(e) => setNewFieldDescription(e.target.value)}
-              fullWidth
-              multiline
-              rows={2}
-            />
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <input
-                type="checkbox"
-                checked={newFieldRequired}
-                onChange={(e) => setNewFieldRequired(e.target.checked)}
-                id="required-checkbox"
-              />
-              <label htmlFor="required-checkbox">
-                <Typography variant="body2">Required field</Typography>
-              </label>
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAddFieldDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
-            onClick={addNewTargetField}
-            disabled={!newFieldName.trim()}
-          >
-            Add Field
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onAdd={handleAddEnhancedField}
+      />
 
       <Snackbar
         open={snackbarOpen}

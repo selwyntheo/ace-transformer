@@ -1,0 +1,63 @@
+{
+  "userId": "USR-12345",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phone": "+1-555-0123",
+  "dateOfBirth": "1990-05-15",
+  "address": {
+    "street": "123 Main Street",
+    "city": "San Francisco",
+    "state": "CA",
+    "zipCode": "94102",
+    "country": "USA"
+  },
+  "employment": {
+    "company": "Tech Corp",
+    "position": "Senior Developer",
+    "department": "Engineering",
+    "salary": 125000,
+    "startDate": "2020-01-15"
+  },
+  "orders": [
+    {
+      "orderId": "ORD-001",
+      "productName": "Laptop Pro",
+      "quantity": 1,
+      "price": 1299.99,
+      "orderDate": "2025-01-15",
+      "status": 1
+    },
+    {
+      "orderId": "ORD-002",
+      "productName": "Wireless Mouse",
+      "quantity": 2,
+      "price": 29.99,
+      "orderDate": "2025-02-20",
+      "status": 2
+    },
+    {
+      "orderId": "ORD-003",
+      "productName": "USB-C Cable",
+      "quantity": 3,
+      "price": 15.99,
+      "orderDate": "2025-03-10",
+      "status": 3
+    }
+  ],
+  "preferences": {
+    "newsletter": true,
+    "notifications": {
+      "email": true,
+      "sms": false,
+      "push": true
+    },
+    "language": "en",
+    "timezone": "America/Los_Angeles"
+  },
+  "accountStatus": 2,
+  "membershipLevel": "premium",
+  "loyaltyPoints": 1250,
+  "lastLogin": "2025-11-01T14:30:00Z",
+  "createdAt": "2023-06-15T10:00:00Z"
+}

@@ -26,6 +26,15 @@ export interface FieldMapping {
   sourceField: string
   targetField: string
   transformationRule?: string
+  fieldType?: 'SIMPLE' | 'NESTED_OBJECT' | 'COMPUTED' | 'KEY_VALUE_PAIR'
+  computedType?: 'UUID' | 'TIMESTAMP' | 'TIMESTAMP_ISO' | 'DATE' | 'COUNT' | 'INCREMENT' | 'CONSTANT' | 'RANDOM_STRING' | 'RANDOM_NUMBER'
+  isNested?: boolean
+  parentField?: string
+  nestingLevel?: number
+  isKeyValuePair?: boolean
+  keyFieldName?: string
+  valueFieldName?: string
+  children?: FieldMapping[]
 }
 
 export interface AdvancedTransformOptions {
